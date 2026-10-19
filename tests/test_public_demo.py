@@ -8,7 +8,7 @@ from urllib.parse import urljoin, urlsplit
 
 import pytest
 
-from web import handler
+from web import handler, smoke
 from web.build import BASE, DOCS, build
 from web.lessons import LESSONS, PUBLIC_IDS, SAMPLES, sample, validate_public
 from web.paths import PREFIX, SITE
@@ -206,6 +206,25 @@ def test_deployment_static_check_rejects_missing_assets_and_lesson_routes(tmp_pa
     next((tmp_path / BASE.lstrip("/") / "assets").glob("features.*.js")).unlink()
     with pytest.raises(FileNotFoundError):
         check_pages(load)
+
+
+def test_public_static_check_rejects_a_redirect_before_reading_content(monkeypatch):
+    class RedirectedResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def geturl(self):
+            return SITE + "/"
+
+        def read(self):
+            pytest.fail("転送された本文を正常な静的参照として使ってはいけません")
+
+    monkeypatch.setattr(smoke, "urlopen", lambda *args, **kwargs: RedirectedResponse())
+    with pytest.raises(ValueError, match="別のURLへ転送"):
+        smoke.check_public_pages()
 
 
 def test_public_documents_link_only_to_emitted_files(tmp_path):

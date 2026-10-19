@@ -1,10 +1,10 @@
-:root { color-scheme: light; --paper: #faf9f5; --ink: #242822; --muted: #62675e; --line: #dcded5; --accent: #435b35; --lime: #d8edab; }
+:root { color-scheme: light; --paper: #faf9f5; --ink: #242822; --muted: #62675e; --line: #dcded5; --accent: #435b35; --lime: #d8edab; --focus: #9c5a18; }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 110px; }
 body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; line-height: 1.85; -webkit-font-smoothing: antialiased; }
 a { color: inherit; text-underline-offset: 5px; }
 a:hover { text-decoration-thickness: 2px; }
-a:focus-visible { outline: 3px solid currentColor; outline-offset: 6px; }
+a:focus-visible { outline: 3px solid var(--focus); outline-offset: 6px; }
 h1, h2, h3, p, figure { margin: 0; }
 h1, h2, h3 { line-height: 1.45; letter-spacing: -.035em; }
 h2 { font-size: clamp(28px, 3vw, 40px); font-weight: 650; }

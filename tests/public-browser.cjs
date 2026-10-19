@@ -5,6 +5,26 @@ const path = require("node:path");
 const fs = require("node:fs/promises");
 const {chromium} = require(process.env.PLAYWRIGHT_MODULE_PATH || "playwright");
 
+async function checkFocusContrast(page, selector) {
+  const control = page.locator(selector).first();
+  await control.focus();
+  await page.keyboard.press("Shift+Tab");
+  await page.keyboard.press("Tab");
+  const result = await control.evaluate(element => {
+    const style = getComputedStyle(element);
+    const luminance = color => {
+      const rgb = color.match(/[\d.]+/g).slice(0, 3).map(Number).map(value => {
+        value /= 255;
+        return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+      });
+      return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
+    };
+    const ring = luminance(style.outlineColor), background = luminance(getComputedStyle(document.body).backgroundColor);
+    return {visible: element.matches(":focus-visible"), width: parseFloat(style.outlineWidth), contrast: (Math.max(ring, background) + 0.05) / (Math.min(ring, background) + 0.05)};
+  });
+  assert(result.visible && result.width >= 3 && result.contrast >= 3, `${selector}: ${JSON.stringify(result)}`);
+}
+
 (async () => {
   const python = process.env.PYTHON || (process.platform === "win32" ? ".venv/Scripts/python.exe" : ".venv/bin/python");
   const args = ["-m", "tests.public_browser_server"];
@@ -30,6 +50,7 @@ const {chromium} = require(process.env.PLAYWRIGHT_MODULE_PATH || "playwright");
     }
     await page.goto(base + "demo/#demand");
     await page.locator("#feature-status").filter({hasText: "OPTIMAL"}).waitFor({timeout: 45000});
+    await checkFocusContrast(page, "button.primary");
     await page.locator("#feature-number").fill("4");
     await page.getByRole("button", {name: "再計算", exact: true}).click();
     await page.locator("#feature-status").filter({hasText: "PARTIAL"}).waitFor({timeout: 45000});
@@ -55,6 +76,7 @@ const {chromium} = require(process.env.PLAYWRIGHT_MODULE_PATH || "playwright");
     assert(await page.locator(".skip-link").evaluate(element => element === document.activeElement));
     await page.keyboard.press("Enter");
     assert.equal(new URL(page.url()).hash, "#main");
+    await checkFocusContrast(page, ".site-header a.button");
     const destination = path.resolve("test-results/public-demo");
     await fs.mkdir(destination, {recursive: true});
     await page.screenshot({path: path.join(destination, "guide.png"), fullPage: true});

@@ -60,6 +60,8 @@ def check_pages(load):
 def check_public_pages():
     def load(path):
         with urlopen(SITE + path, timeout=15) as received:
+            if received.geturl() != SITE + path:
+                raise ValueError(f"静的参照が別のURLへ転送されました: {path}")
             return received.headers.get("Content-Type", ""), received.read().decode(
                 "utf-8", errors="replace"
             )
