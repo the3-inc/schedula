@@ -6,7 +6,7 @@
 
 ## URLと所有者
 
-| 対象 | URL | コードと通常公開 |
+| 対象 | URL | コードと初回公開・更新 |
 | --- | --- | --- |
 | 商品紹介 | https://the3.co.jp/products/schedula/ | landing-page |
 | 公開デモ | https://the3.co.jp/products/schedula/demo/ | schedula |
@@ -25,17 +25,17 @@ infra/public-webが会社/デモS3・ECR・Lambda・共有CloudFront/OAC/WAF・A
 foundationのstateと既存3識別子は維持し、public-webから一方向に読む。
 一つのDistributionを複数stateから変更せず、コードrepoのAWS CLIでOriginを追加しない。
 
-## 初回構築
+## 初回構築と初回公開
 
-1. 実装をmainへマージし、対象main CI成功を確認する。schedulaの未変更main checkoutを構築コマンドへ渡す。
-2. infra側で管理用認証・既存Hosted Zone・安全なstate用S3を用意し、config.jsonの3項目を設定する。
-3. infraのbootstrapで共通基盤・S3/ECR・初期イメージ/静的成果物・Lambda/live alias・共有経路を構築し、実URLの3教材を検証する。
-4. 各コードrepoにproductionと保護を用意し、infraのconfigure-deployで公開先変数を登録する。
-5. landing-pageの会社タグで紹介を公開する。デモリンク用のフラグは使わない。
+1. infra側で管理用認証・既存Hosted Zone・安全なstate用S3を用意し、config.jsonの3項目を設定する。両コードrepoのproduction Environmentと保護設定を事前に用意し、変数を書き込める`gh`認証も準備する。
+2. infraの`bootstrap --apply`で共通基盤・S3/ECR・準備中イメージのLambda/live alias・共有経路を構築する。schedulaのcheckoutは渡さない。新規環境のAPIは503と「準備中です。」を返し、デモ・技術文書はまだS3へ配置されない。
+3. bootstrapの最終apply成功後、infraが最新outputから両repoのproduction変数を自動同期したことを確認する。同期だけが失敗した場合は、再applyせずinfraの`configure-deploy`で再試行する。
+4. 初回も下記の「アップデート」と同じ`web-v*`タグ公開workflowで、schedulaの画面・技術文書・APIを配備して公開後検証を行う。workflowは準備中の既存`live` aliasを実装のバージョンへ切り替える。
+5. landing-pageも自身の`v*`タグ公開workflowで会社サイト・商品紹介を公開する。両workflowは相手の公開やinfra操作を呼び出さない。紹介時にリンク先を利用可能にしたい場合はデモを先に公開する。
 
 構築コマンド・設定値・公開先登録は[infraの初回構築手順](https://github.com/the3-inc/infra/blob/main/README.md#初回構築)を参照する。
-初回イメージ投入はinfraの構築コマンドが検証済みmainから行う。以後のコードとaliasはschedulaの公開workflowが所有する。
-初期digestを保管し、nullへ戻さない。既存AWS/stateがある場合、新規bootstrapではなくinfraの移管手順で実IDと所有権を確認する。
+実装のビルド・S3配置・ECR push・Lambdaコード/live alias更新・実URLでの計算検証は、初回も通常更新もこのrepoの公開workflowが担当する。infraは公開済みコードとaliasの参照先を上書きしない。
+初期digestを保管し、nullへ戻さない。旧方式の記録済みdigestは維持し、実装を準備中へ戻す移行はしない。既存AWS/stateがある場合、新規bootstrapではなくinfraの移管手順で実IDと所有権を確認する。
 旧rootで定義削除をapplyしない。所有権移管と依存版更新を混ぜない。
 
 ## 配信・認証・キャッシュ
@@ -65,7 +65,9 @@ PARTIALは不足のある有効な計画であり、独立検証成功は完全�
 
 ## アップデート
 
-infra outputからproductionの6変数を登録する。AWS_ACCOUNT_ID、AWS_REGION、SITE_BUCKET、ECR_REPOSITORY、LAMBDA_FUNCTION、AWS_ROLE_ARN。
+初回公開と通常更新は同じ手順を使う。基盤構築と公開先登録が完了してから実行する。
+
+infraのbootstrap最終apply・通常apply成功後に、最新outputからproductionの6変数を自動同期する。AWS_ACCOUNT_ID、AWS_REGION、SITE_BUCKET、ECR_REPOSITORY、LAMBDA_FUNCTION、AWS_ROLE_ARN。同期の単独再試行にはinfraの`configure-deploy`を使う。
 長期キーは登録しない。公開ロールは自S3 prefix・ECR・Lambdaコード/live aliasだけを更新し、state/SSM/IAM/DNS/CloudFront設定を変更できない。
 mainのPR/quality-checks、web-v*の作成者制限と移動/削除禁止、productionのmain/web-v*許可refと必要なreviewersを設定する。
 
@@ -115,7 +117,7 @@ AWS認証前にタグ形式・main履歴・対象commitの最新main CI成功を
    更新した文書内のリンクも確認する。workflowは実URLの3教材を再計算・独立検証する。
    run URL・タグ・commitと、Summaryのimage digest・Lambda version・previous Lambda versionを記録する。
 
-通常のコード更新でbootstrap・Terraform apply・公開先変数の再登録は不要。
+初回公開も通常更新も、構築済み基盤へのbootstrap・Terraform apply・公開先変数の再登録は不要。
 会社サイトの紹介文は[landing-pageのタグ公開](https://github.com/the3-inc/landing-page/blob/main/docs/site-deployment.md#タグによる公開)、
 WAF・IAM・経路などの変更は[infraの更新手順](https://github.com/the3-inc/infra/blob/main/README.md#インフラを変更する)で行う。
 
