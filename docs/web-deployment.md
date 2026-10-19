@@ -27,9 +27,9 @@ foundationのstateと既存3識別子は維持し、public-webから一方向に
 
 ## 初回構築と初回公開
 
-1. infra側で管理用認証・既存Hosted Zone・安全なstate用S3を用意し、config.jsonの3項目を設定する。
+1. infra側で管理用認証・既存Hosted Zone・安全なstate用S3を用意し、config.jsonの3項目を設定する。両コードrepoのproduction Environmentと保護設定を事前に用意し、変数を書き込める`gh`認証も準備する。
 2. infraの`bootstrap --apply`で共通基盤・S3/ECR・準備中イメージのLambda/live alias・共有経路を構築する。schedulaのcheckoutは渡さない。新規環境のAPIは503と「準備中です。」を返し、デモ・技術文書はまだS3へ配置されない。
-3. 各コードrepoにproductionと保護を用意し、infraのconfigure-deployで公開先変数を登録する。
+3. bootstrapの最終apply成功後、infraが最新outputから両repoのproduction変数を自動同期したことを確認する。同期だけが失敗した場合は、再applyせずinfraの`configure-deploy`で再試行する。
 4. 初回も下記の「アップデート」と同じ`web-v*`タグ公開workflowで、schedulaの画面・技術文書・APIを配備して公開後検証を行う。workflowは準備中の既存`live` aliasを実装のバージョンへ切り替える。
 5. landing-pageも自身の`v*`タグ公開workflowで会社サイト・商品紹介を公開する。両workflowは相手の公開やinfra操作を呼び出さない。紹介時にリンク先を利用可能にしたい場合はデモを先に公開する。
 
@@ -67,7 +67,7 @@ PARTIALは不足のある有効な計画であり、独立検証成功は完全�
 
 初回公開と通常更新は同じ手順を使う。基盤構築と公開先登録が完了してから実行する。
 
-infra outputからproductionの6変数を登録する。AWS_ACCOUNT_ID、AWS_REGION、SITE_BUCKET、ECR_REPOSITORY、LAMBDA_FUNCTION、AWS_ROLE_ARN。
+infraのbootstrap最終apply・通常apply成功後に、最新outputからproductionの6変数を自動同期する。AWS_ACCOUNT_ID、AWS_REGION、SITE_BUCKET、ECR_REPOSITORY、LAMBDA_FUNCTION、AWS_ROLE_ARN。同期の単独再試行にはinfraの`configure-deploy`を使う。
 長期キーは登録しない。公開ロールは自S3 prefix・ECR・Lambdaコード/live aliasだけを更新し、state/SSM/IAM/DNS/CloudFront設定を変更できない。
 mainのPR/quality-checks、web-v*の作成者制限と移動/削除禁止、productionのmain/web-v*許可refと必要なreviewersを設定する。
 
