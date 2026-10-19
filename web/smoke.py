@@ -44,6 +44,7 @@ def check_pages(load):
             target = urlsplit(urljoin(SITE + path, link))
             if target.scheme == "mailto":
                 continue
+            assert target.scheme == urlsplit(SITE).scheme, link
             assert target.netloc == urlsplit(SITE).netloc, link
             # 会社トップ・製品紹介は会社の成果物。製品の初回公開を会社公開に依存させない。
             if target.path in {"/", BASE}:

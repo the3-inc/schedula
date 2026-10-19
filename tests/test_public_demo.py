@@ -197,6 +197,12 @@ def test_deployment_static_check_rejects_missing_assets_and_lesson_routes(tmp_pa
         return mimetypes.guess_type(target.name)[0] or "text/plain", target.read_text()
 
     check_pages(load)
+    page_file = tmp_path / BASE.lstrip("/") / "demo/index.html"
+    page = page_file.read_text()
+    page_file.write_text(page + f'<a href="{SITE.replace("https:", "http:")}/">会社</a>')
+    with pytest.raises(AssertionError):
+        check_pages(load)
+    page_file.write_text(page)
     lesson_file = tmp_path / BASE.lstrip("/") / "demo/samples/lessons.json"
     lessons = lesson_file.read_text()
     lesson_file.write_text("[]")
