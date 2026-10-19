@@ -8,8 +8,8 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from web.lessons import LESSONS, PUBLIC_IDS, ROOT, SAMPLES
+from web.paths import BASE, PREFIX, SITE
 
-BASE = "/products/schedula/"
 DOCS = ("python-setup", "python-api", "io-contract-current", "distribution")
 
 
@@ -23,7 +23,10 @@ def build(destination):
     (product / "docs").mkdir()
 
     html = (ROOT / "demo" / "index.html").read_text(encoding="utf-8")
-    html = html.replace('<html lang="ja">', '<html lang="ja" data-public-demo="true">')
+    html = html.replace(
+        '<html lang="ja">',
+        f'<html lang="ja" data-public-demo="true" data-api-base="{PREFIX}">',
+    )
     start, end = html.index('  <details id="adapter-demo"'), html.index("</main>")
     html = html[:start] + html[end:]
     html = re.sub(r'  <script src="/demo/adapter.js" defer></script>\n', "", html)
@@ -59,7 +62,7 @@ def build(destination):
     for text, name in ((html, "demo/index.html"), (guide, "docs/index.html")):
         text = text.replace(
             "</head>",
-            f'  <link rel="canonical" href="https://the3.co.jp{BASE}{name.split("/")[0]}/">\n</head>',
+            f'  <link rel="canonical" href="{SITE}{BASE}{name.split("/")[0]}/">\n</head>',
         )
         (product / name).write_text(text, encoding="utf-8")
     catalog = json.loads((SAMPLES / "catalog.json").read_text(encoding="utf-8"))

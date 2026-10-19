@@ -8,9 +8,11 @@ from urllib.parse import urljoin, urlsplit
 
 import pytest
 
-from web import handler
+from web import handler, smoke
 from web.build import BASE, DOCS, build
 from web.lessons import LESSONS, PUBLIC_IDS, SAMPLES, sample, validate_public
+from web.paths import PREFIX, SITE
+from web.smoke import check_pages
 
 
 def event(lesson_id="demand", value=None):
@@ -159,6 +161,8 @@ def test_public_build_is_allowlisted_and_prefixes_all_links(tmp_path):
 
     for name in ("demo/index.html", "docs/index.html"):
         content = (product / name).read_text()
+        assert f'href="{SITE}/"' in content
+        assert "the3合同会社の製品" in content
         for link in PageLinks(content).links:
             if link.startswith("/"):
                 assert link.startswith(BASE), link
@@ -169,6 +173,64 @@ def test_public_build_is_allowlisted_and_prefixes_all_links(tmp_path):
                 assert (path / "index.html").is_file() if target.endswith("/") else path.is_file()
     with pytest.raises(ValueError):
         build(tmp_path)
+
+
+def test_public_paths_reach_the_browser_and_api_from_one_definition(tmp_path):
+    product = build(tmp_path)
+    html = (product / "demo/index.html").read_text()
+    assert f'data-api-base="{PREFIX}"' in html
+    features = next((product / "assets").glob("features.*.js")).read_text()
+    assert "dataset.apiBase" in features
+    assert "/products/schedula/api/" not in features
+    assert handler.PREFIX == PREFIX
+
+
+def test_deployment_static_check_rejects_missing_assets_and_lesson_routes(tmp_path):
+    import mimetypes
+
+    build(tmp_path)
+
+    def load(path):
+        target = tmp_path / path.lstrip("/")
+        if path.endswith("/"):
+            target /= "index.html"
+        return mimetypes.guess_type(target.name)[0] or "text/plain", target.read_text()
+
+    check_pages(load)
+    page_file = tmp_path / BASE.lstrip("/") / "demo/index.html"
+    page = page_file.read_text()
+    page_file.write_text(page + f'<a href="{SITE.replace("https:", "http:")}/">会社</a>')
+    with pytest.raises(AssertionError):
+        check_pages(load)
+    page_file.write_text(page)
+    lesson_file = tmp_path / BASE.lstrip("/") / "demo/samples/lessons.json"
+    lessons = lesson_file.read_text()
+    lesson_file.write_text("[]")
+    with pytest.raises(AssertionError):
+        check_pages(load)
+    lesson_file.write_text(lessons)
+    next((tmp_path / BASE.lstrip("/") / "assets").glob("features.*.js")).unlink()
+    with pytest.raises(FileNotFoundError):
+        check_pages(load)
+
+
+def test_public_static_check_rejects_a_redirect_before_reading_content(monkeypatch):
+    class RedirectedResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def geturl(self):
+            return SITE + "/"
+
+        def read(self):
+            pytest.fail("転送された本文を正常な静的参照として使ってはいけません")
+
+    monkeypatch.setattr(smoke, "urlopen", lambda *args, **kwargs: RedirectedResponse())
+    with pytest.raises(ValueError, match="別のURLへ転送"):
+        smoke.check_public_pages()
 
 
 def test_public_documents_link_only_to_emitted_files(tmp_path):

@@ -40,7 +40,9 @@ foundationのstateと既存3識別子は維持し、public-webから一方向に
 
 ## 配信・認証・キャッシュ
 
-商品紹介は会社S3、demo/docs/assets/license.txtはデモS3、apiとapi/*はLambdaへ流す。products/schedula/*の一括転送はしない。
+商品紹介は会社S3、demo/docs/assets/license.txtはデモS3、APIはLambdaへ流す。コード・内容の所有はCloudFrontのパターン数とは独立している。
+infraのhardened構成はAPI・静的配下を詳細なパターンで振り分ける。Free構成はAPI・assetsを優先し、広い`/products/schedula/*`に一致する要求もviewer-request関数で会社・製品のOriginを選ぶ。紹介は会社S3に残し、demo/docs/assets/license.txtだけを製品S3へ送る。
+API完全一致の入口GETなどは関数で拒否する。経路の定義・優先順位・Origin選択はinfraが所有し、教材や文書ごとの内部URLは製品側が管理する。[infraの経路説明](https://github.com/the3-inc/infra/blob/main/README.md#パスを配信先へ振り分ける仕組み)を参照する。
 S3キーに公開prefixを含め、Origin pathを追加しない。APIへrewriteを付けない。demo/docsの末尾slashを308で補い、ディレクトリをindex.htmlへ対応付ける。
 HTML・教材・文書・APIはCachingDisabled/no-store、内容hash付きassetsだけ長期キャッシュする。
 Lambda URLはAWS_IAM、OAC always、会社Distributionだけを許可する。匿名のOrigin直接呼出しを許可しない。
@@ -56,6 +58,8 @@ IPごと60回/5分・全体300回/5分、sampled request無効、ログへ本文
 
 既存HTML/JS/CSSと教材の正本を再利用する。web/build.pyは必要人数・連勤・手修正検証の3教材と現行4文書だけを出力する。
 公開prefixを/products/schedula/へ統一し、JS/CSSへ内容hashを付ける。
+公開URLは`web/paths.py`の`SITE`・`BASE`・`PREFIX`を正本とし、ブラウザーのAPIパスはビルド時にHTMLの`data-api-base`へ渡す。ローカルの`/demo/`は維持する。
+デモ・技術案内には会社との関係を示すリンクを置く。会社URLは絶対URLを保ち、製品のベースパスへ変換しない。
 公開Markdown間リンクを維持し、LICENSEをlicense.txtへ書き換える。非配信ファイルへのリンクはソース配布内の参照を示す通常テキストにする。
 元文書と公開範囲は変えず、全出力Markdownの相対リンクを検査する。非公開GitHubへ誘導してリンク切れを隠さない。
 Lambdaは2つの既知操作だけを受け付け、Origin・Content-Type・本文64KiB・hash・厳密JSON・教材ID/編集範囲を検査する。
@@ -145,4 +149,15 @@ S3とalias更新は原子的ではない。画面/APIの互換性を保つ。失
 異常負荷時のconcurrency=0、API経路遮断はinfra担当が実施する。
 コード・公開prefix・文書リンク・ブラウザー・read-only Linuxコンテナーはschedula CI、Terraform/WAF/IAM/URL rewriteはinfra CIが検証する。
 mockは実AWSの権限・DNS・性能を保証しない。実公開で会社5ページ・デモ・文書・APIとOrigin直接アクセス拒否を確認する。
+
+公開workflowの`web.smoke --public`は、製品所有のHTML・JS・CSS・文書と教材フラグメントも検査する。会社所有のトップ・紹介はここでは要求せず、製品の初回公開を会社公開に依存させない。
+会社・製品の両成果物による往復・アンカー検査と静的プレビューは、[会社側の接続確認](https://github.com/the3-inc/landing-page/blob/main/docs/site-integration.md)を使う。会社の公開workflowは両サイトの静的接続も検証する。
+会社の生成先を指定すれば、既存の公開ブラウザーテストで紹介→デモの計算→紹介→文書→導入相談まで確認できる。
+
+```sh
+COMPANY_SITE_DIR=/absolute/path/to/landing-page/dist node tests/public-browser.cjs
+```
+
+Playwrightの準備は既存のCIブラウザー検証と同じ。通常開発の`demo/server.py`、公開handlerのOrigin・本文・教材範囲の検査は維持する。
+製品のブランドと操作基準は[製品Webのデザイン基準](web-design.md)を参照する。
 [インフラ管理先](../infra/README.md)と[LPの責任](landing-page.md)を参照する。

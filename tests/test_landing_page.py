@@ -42,6 +42,9 @@ def test_landing_links_reach_served_content_and_contact(http_server):
             if target.scheme == "mailto":
                 assert unquote(target.path) == "omitsuhashi@the3-o.com"
                 continue
+            if target.scheme == "https" and target.netloc == "the3.co.jp":
+                assert link == "https://the3.co.jp/"
+                continue
             assert not target.scheme and not target.netloc, link
             status, media_type, body = get(http_server, target.path)
             assert status == 200, (source, link)

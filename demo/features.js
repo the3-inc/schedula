@@ -302,7 +302,7 @@ async function runFeature() {
       headers["X-Amz-Content-Sha256"] = [...new Uint8Array(digest)].map(value => value.toString(16).padStart(2, "0")).join("");
       headers["X-Demo-Lesson"] = lesson.id;
     }
-    const response = await fetch(publicDemo ? `/products/schedula/api/${operation}` : `/demo/${operation}`, {method: "POST", headers, body, signal: controller.signal});
+    const response = await fetch(publicDemo ? `${document.documentElement.dataset.apiBase}${operation}` : `/demo/${operation}`, {method: "POST", headers, body, signal: controller.signal});
     const result = await response.json();
     if (feature !== state || revision !== state.revision) return;
     if (!response.ok) throw new Error(`${result.error?.code || "HTTP_ERROR"}：${result.error?.message || "結果を取得できません。"}`);
