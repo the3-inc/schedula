@@ -11,8 +11,8 @@ import sys
 from shift_schedula import load_json
 from shift_schedula.contract import InvalidInput
 from web.lessons import LESSONS, ROOT, validate_public
+from web.paths import PREFIX, SITE
 
-PREFIX = "/products/schedula/api/"
 MAX_BODY = 64 * 1024
 MAX_RESPONSE = 1024 * 1024
 WORKER_TIMEOUT = 20
@@ -47,7 +47,7 @@ def lambda_handler(event, context):
     if (
         not re.fullmatch(r"[a-z0-9]+\.lambda-url\.ap-northeast-1\.on\.aws", host)
         or headers.get("host") != host
-        or headers.get("origin") != "https://the3.co.jp"
+        or headers.get("origin") != SITE
     ):
         return error(403, "FORBIDDEN_ORIGIN", "公開デモから送信してください。")
     lesson_id = headers.get("x-demo-lesson")

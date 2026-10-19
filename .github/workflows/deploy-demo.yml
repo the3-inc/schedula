@@ -128,8 +128,9 @@ jobs:
           aws lambda update-alias --function-name "$LAMBDA_FUNCTION" --name live --function-version "$version"
           mkdir site
           tar -xzf release/site.tar.gz -C site
-          source=site/products/schedula
-          target="s3://$SITE_BUCKET/products/schedula"
+          prefix=$(python3 -c 'from web.paths import BASE; print(BASE.strip("/"))')
+          source="site/$prefix"
+          target="s3://$SITE_BUCKET/$prefix"
           aws s3 sync "$source/assets/" "$target/assets/" --cache-control 'public,max-age=31536000,immutable'
           aws s3 sync "$source/" "$target/" --exclude 'assets/*' --delete --cache-control no-store
           for name in python-setup python-api io-contract-current distribution; do

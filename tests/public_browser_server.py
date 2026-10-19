@@ -10,6 +10,7 @@ from urllib.parse import urlsplit
 
 from web.build import build
 from web.handler import PREFIX, lambda_handler
+from web.paths import BASE
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -18,10 +19,19 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         path = urlsplit(self.path).path
-        target = self.server.directory / path.lstrip("/")
+        directory = self.server.directory
+        if (
+            self.server.company is not None
+            and not path.startswith(BASE + "demo/")
+            and not path.startswith(BASE + "docs/")
+            and not path.startswith(BASE + "assets/")
+            and path != BASE + "license.txt"
+        ):
+            directory = self.server.company
+        target = directory / path.lstrip("/")
         if path.endswith("/"):
             target /= "index.html"
-        if not target.is_file() or not target.resolve().is_relative_to(self.server.directory):
+        if not target.is_file() or not target.resolve().is_relative_to(directory):
             self.send_error(404)
             return
         content = target.read_bytes()
@@ -62,10 +72,12 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=0)
+    parser.add_argument("--company", type=Path)
     args = parser.parse_args()
     with tempfile.TemporaryDirectory(prefix="schedula-public-") as directory:
         build(directory)
         with ThreadingHTTPServer(("127.0.0.1", args.port), Handler) as server:
             server.directory = Path(directory).resolve()
+            server.company = args.company.resolve() if args.company else None
             print(json.dumps({"port": server.server_port}), flush=True)
             server.serve_forever()
