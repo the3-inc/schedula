@@ -161,3 +161,12 @@ COMPANY_SITE_DIR=/absolute/path/to/landing-page/dist node tests/public-browser.c
 Playwrightの準備は既存のCIブラウザー検証と同じ。通常開発の`demo/server.py`、公開handlerのOrigin・本文・教材範囲の検査は維持する。
 製品のブランドと操作基準は[製品Webのデザイン基準](web-design.md)を参照する。
 [インフラ管理先](../infra/README.md)と[LPの責任](landing-page.md)を参照する。
+
+## GA4によるアクセス解析
+
+会社サイト・製品LPと同じWebストリームを使う。`PUBLIC_GA4_MEASUREMENT_ID`をこのrepoのActionsのRepository variableへ設定する。production承認前のbuildジョブで参照するため、Environmentだけに設定しない。測定IDが未設定・不正な新しいWeb公開はAWS更新前に停止する。
+
+`web.build`はデモ・技術案内の全HTMLに公式タグの初期化スクリプトを一つずつ追加する。本番ホスト以外では計測しない。生Markdown・API・ライセンスはHTMLページではなく、利用時間の対象外。
+利用者が明示的に再計算・再検証し、応答検査後の独立検証が成功した場合だけ`demo_run_success`を送る。初期計算・教材切替・初期値復元時の自動計算は数えない。`PARTIAL`も有効な結果として操作成功に含め、`result_status`で完全充足とは区別する。入力本文・実行ID・結果本文は送信しない。
+
+GA4プロパティの作成、拡張計測の個別設定、キーイベント・カスタムディメンション・内部アクセス除外、問い合わせ受付、同意設定と受入確認は[会社側の計測手順](https://github.com/the3-inc/landing-page/blob/main/docs/analytics.md)を正本とする。hardenedではinfraのCSP変更を先に適用する。測定IDの設定だけで本番受信確認済みとはしない。
