@@ -1,4 +1,5 @@
 const assert = require("node:assert/strict");
+require("./analytics.cjs");
 const {spawn} = require("node:child_process");
 const {once} = require("node:events");
 const path = require("node:path");
@@ -37,6 +38,10 @@ async function checkFocusContrast(page, selector) {
     const base = `http://127.0.0.1:${port}/products/schedula/`;
     browser = await chromium.launch({headless: true});
     const page = await browser.newPage();
+    await page.addInitScript(() => {
+      window.analyticsEvents = [];
+      window.gtag = (...args) => window.analyticsEvents.push(args);
+    });
     const failures = [], requests = [];
     page.on("pageerror", error => failures.push(error.message));
     page.on("request", request => requests.push(request.url()));
@@ -50,21 +55,33 @@ async function checkFocusContrast(page, selector) {
     }
     await page.goto(base + "demo/#demand");
     await page.locator("#feature-status").filter({hasText: "OPTIMAL"}).waitFor({timeout: 45000});
+    assert.deepEqual(await page.evaluate(() => window.analyticsEvents), []);
     await checkFocusContrast(page, "button.primary");
     await page.locator("#feature-number").fill("4");
     await page.getByRole("button", {name: "再計算", exact: true}).click();
     await page.locator("#feature-status").filter({hasText: "PARTIAL"}).waitFor({timeout: 45000});
     assert.match(await page.locator("#feature-output").innerText(), /60人分/);
+    assert.deepEqual(await page.evaluate(() => window.analyticsEvents), [["event", "demo_run_success", {
+      lesson_id: "demand", operation: "solve", result_status: "PARTIAL",
+    }]]);
     await page.goto(base + "demo/#consecutive_days");
     await page.locator("#feature-status").filter({hasText: "OPTIMAL"}).waitFor({timeout: 45000});
     await page.locator("#feature-number").fill("3");
     await page.getByRole("button", {name: "再計算", exact: true}).click();
     await page.locator("#feature-status").filter({hasText: "OPTIMAL"}).waitFor({timeout: 45000});
+    await page.evaluate(() => { window.analyticsEvents = []; });
     await page.goto(base + "demo/#verify");
     await page.locator("#feature-status").filter({hasText: "VALID ·"}).waitFor({timeout: 45000});
     await page.locator("#feature-kitchen").selectOption("bob");
     await page.getByRole("button", {name: "再検証", exact: true}).click();
     await page.locator("#feature-status").filter({hasText: "INVALID_PLAN"}).waitFor({timeout: 45000});
+    assert.deepEqual(await page.evaluate(() => window.analyticsEvents), []);
+    await page.locator("#feature-kitchen").selectOption("alice");
+    await page.getByRole("button", {name: "再検証", exact: true}).click();
+    await page.locator("#feature-status").filter({hasText: "VALID ·"}).waitFor({timeout: 45000});
+    assert.deepEqual(await page.evaluate(() => window.analyticsEvents), [["event", "demo_run_success", {
+      lesson_id: "verify", operation: "verify", result_status: "VALID",
+    }]]);
     for (const width of [320, 390, 1440]) {
       await page.setViewportSize({width, height: 900});
       assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `overflow at ${width}`);

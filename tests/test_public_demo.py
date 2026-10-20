@@ -185,10 +185,11 @@ def test_public_paths_reach_the_browser_and_api_from_one_definition(tmp_path):
     assert handler.PREFIX == PREFIX
 
 
-def test_deployment_static_check_rejects_missing_assets_and_lesson_routes(tmp_path):
+@pytest.mark.parametrize("ga4_id", ["", "G-TEST123"])
+def test_deployment_static_check_rejects_missing_assets_and_lesson_routes(tmp_path, ga4_id):
     import mimetypes
 
-    build(tmp_path)
+    build(tmp_path, ga4_id=ga4_id)
 
     def load(path):
         target = tmp_path / path.lstrip("/")
@@ -253,3 +254,21 @@ def test_public_documents_link_only_to_emitted_files(tmp_path):
     assert "担当配置の手順（ソース配布内の `assignment.md`）" in setup
     assert "README（ソース配布内の `../README.md`）" in setup
     assert "実行例（ソース配布内の `../examples/typed_api.py`）" in api
+
+
+@pytest.mark.parametrize("ga4_id", ["", "G-TEST123"])
+def test_ga4_is_included_once_on_all_public_html_when_configured(tmp_path, ga4_id):
+    product = build(tmp_path, ga4_id=ga4_id)
+    for page in product.rglob("*.html"):
+        html = page.read_text()
+        assert html.count('data-ga4-id="G-TEST123"') == bool(ga4_id)
+        assert "googletagmanager.com/gtag/js" not in html
+    source = next((product / "assets").glob("analytics.*.js")).read_text()
+    assert 'location.origin !== "https://the3.co.jp"' in source
+
+
+@pytest.mark.parametrize("ga4_id", ["invalid", 'G-ABC"<script>', "G-lowercase"])
+def test_invalid_ga4_id_fails_before_writing(tmp_path, ga4_id):
+    with pytest.raises(ValueError, match="MEASUREMENT_ID"):
+        build(tmp_path, ga4_id=ga4_id)
+    assert not list(tmp_path.iterdir())

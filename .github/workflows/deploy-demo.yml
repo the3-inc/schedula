@@ -21,6 +21,8 @@ jobs:
       actions: read
     outputs:
       sha: ${{ steps.release.outputs.sha }}
+    env:
+      PUBLIC_GA4_MEASUREMENT_ID: ${{ vars.PUBLIC_GA4_MEASUREMENT_ID }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -41,6 +43,7 @@ jobs:
         with:
           version: '0.12.23'
       - run: |
+          [[ "$PUBLIC_GA4_MEASUREMENT_ID" =~ ^G-[A-Z0-9]+$ ]] || { echo "::error::Set repository variable PUBLIC_GA4_MEASUREMENT_ID"; exit 1; }
           uv sync --locked
           uv run --no-sync pytest -q tests/test_public_demo.py tests/test_web_release.py
           uv run --no-sync python -m web.build test-results/public-site

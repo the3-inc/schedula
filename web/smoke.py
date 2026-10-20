@@ -42,6 +42,11 @@ def check_pages(load):
         assert "text/html" in media, path
         for link in Page(text).links:
             target = urlsplit(urljoin(SITE + path, link))
+            if link in {
+                "https://policies.google.com/technologies/partner-sites",
+                "https://tools.google.com/dlpage/gaoptout",
+            }:
+                continue
             if target.scheme == "mailto":
                 continue
             assert target.scheme == urlsplit(SITE).scheme, link

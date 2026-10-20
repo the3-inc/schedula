@@ -283,7 +283,7 @@ function renderFeatureGuide() {
   }
 }
 
-async function runFeature() {
+async function runFeature(userInitiated = false) {
   if (!feature || featureController || !$("feature-form").reportValidity()) return;
   const state = feature, revision = state.revision, input = clone(state.input);
   featureController?.abort();
@@ -313,6 +313,11 @@ async function runFeature() {
     }
     state.receive(result, revision);
     renderFeature();
+    if (publicDemo && userInitiated && operationView(lesson.operation, result).validPlan) {
+      window.gtag?.("event", "demo_run_success", {
+        lesson_id: lesson.id, operation: lesson.operation, result_status: result.status,
+      });
+    }
     await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     if (feature === state && revision === state.revision) featureMeasurements.push({id: lesson.id, initial: !(lesson.operation === "verify" ? verifyChanges(state.initial, input) : featureChanges(lesson.editable_fields, state.initial, input)).length,
       elapsed_ms: performance.now() - started, status: result.status, solver: result.solver, stats: result.stats});
@@ -399,7 +404,7 @@ async function routeFeature() {
   }
 }
 
-$("feature-form").addEventListener("submit", event => { event.preventDefault(); runFeature(); });
+$("feature-form").addEventListener("submit", event => { event.preventDefault(); runFeature(true); });
 $("feature-restore").addEventListener("click", () => {
   featureController?.abort(); featureController = null;
   feature.restore(); renderFeatureFields(); renderFeature();
