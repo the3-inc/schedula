@@ -410,6 +410,8 @@ Git には採用判断で使う入力・条件・集計・失敗を含む生デ�
 | --- | --- |
 | [全体像](docs/overview.md) | 目的、利用例、対象範囲、構成、公開物 |
 | [設計方針](docs/design-policy.md) | アルゴリズム選択、制約・選好、検証、LLM の境界 |
+| [OR-Tools公式サンプルとの対応](docs/evaluations/or-tools-shift-scheduling.md) | 機能ごとの対応・意味の差・不足とソース根拠 |
+| [勤務計画APIの改修案](docs/designs/roster-api-and-coverage.md) | JSONとPython引数の役割、簡単な入口、機能差を埋める改修と受け入れ条件 |
 | [現行契約0.15](docs/io-contract-current.md) | 全機能の入力・原区間・既定値・必須条件・目的・状態・証明・実行上限 |
 | [分割入力と実行記録](docs/input-adapter.md) | 所有元、確認失効、純粋な組立、記録・保存・現在の再検証 |
 | [契約サポート方針](docs/contract-support.md) | 次回変更の互換性判断、旧契約対応・移行・終了条件 |
