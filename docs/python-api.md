@@ -51,6 +51,67 @@ else:
 JSONを読んだ後は `validate` を通し、`VALID` を確認した境界で `cast(Request, value)` を使う。
 型を付けただけの値を検証済みと扱わない。
 
+## JSONを経由せず型付きdictを組み立てる
+
+Pythonから利用するときは、`Request` と入れ子の型を付けたdictを直接構築し、
+`solve` に渡せます。次は従業員1人を1時間の皿洗いに配置する、単独で実行できる例です。
+JSONファイルの読み書きや `load_json`、`cast` は使いません。
+
+```python
+from shift_schedula import Request, solve
+from shift_schedula.types import Employee, Interval
+
+interval: Interval = {
+    "start": "2026-10-23T11:00:00+09:00",
+    "end": "2026-10-23T12:00:00+09:00",
+}
+employee: Employee = {
+    "id": "alice",
+    "label": "Aさん",
+    "skills": [],
+    "availability": [interval],
+}
+request: Request = {
+    "schema_version": "0.15",
+    "request_id": "typed_dict_assignment",
+    "problem_type": "assignment",
+    "planning_window": {
+        "start": interval["start"],
+        "end": interval["end"],
+        "timezone": "Asia/Tokyo",
+        "slot_minutes": 30,
+    },
+    "skills": [],
+    "roles": [{"id": "washing", "label": "皿洗い", "required_skills": []}],
+    "employees": [employee],
+    "demand": [
+        {
+            "id": "washing_lunch",
+            "role_id": "washing",
+            "interval": interval,
+            "required_people": 1,
+            "minimum_people": 1,
+        }
+    ],
+    "shift_candidates": [],
+    "constraints": [],
+    "preferences": [],
+    "objectives": [{"id": "preferences", "metric": "preference_penalty"}],
+    "solver": {"backend": "auto", "time_limit_seconds": 10, "seed": 0},
+}
+
+result = solve(request)
+print(result["status"])
+print(result["solution"])
+```
+
+この例は `OPTIMAL` と担当配置を返します。`minimum_people: 1` は需要1人の充足を必須にする指定です。
+`TypedDict` の値は実行時には通常のdictであり、型注釈はキーや値の静的検査に使います。
+日時はオフセット付き文字列、配列はlistなど、値はJSON互換のまま組み立てます。
+`solve` 内でも構造・参照・時間の整合を検証するため、この例では事前の `validate` は省略しています。
+求解前に入力の診断だけを表示したい場合は、同じ `request` を `validate(request)` に渡せます。
+変更した入力の結果は前節のとおり `status` で分岐し、失敗時は `diagnostics` を確認します。
+
 ## 内部障害を調べる
 
 packageのlogger `shift_schedula` は `NullHandler` を持ち、root logger・handler・levelを変更しない。
