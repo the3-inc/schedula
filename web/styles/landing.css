@@ -1,6 +1,6 @@
 .section { padding-block: 100px; }
 .hero { padding-block: 92px 80px; display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; gap: 60px; }
-.hero h1 { font-size: clamp(40px, 4.5vw, 60px); font-weight: 500; line-height: 1.45; letter-spacing: -.065em; }
+.hero h1 { font-size: clamp(40px, 4.5vw, 60px); letter-spacing: -.065em; }
 .accent { color: var(--accent); }
 .status-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-right: 7px; }
 .lead { color: var(--ink); font-size: 19px; font-weight: 600; margin-block: 20px 15px; }
@@ -59,7 +59,6 @@
 .verify-art > span:first-child { padding: 12px 18px; border-radius: 4px; background: var(--paper); font-family: monospace; font-size: 23px; }
 .check-symbol { color: var(--accent); border: 1px solid var(--line); border-radius: 50%; width: 35px; height: 35px; display: grid; place-items: center; }
 .card-kicker { color: var(--accent); font-size: 10px; margin-bottom: 10px; }
-.demo-card h3 { font-size: 18px; }
 .demo-card p { font-size: 13px; margin-block: 12px 24px; }
 .card-link { font-size: 12px; font-weight: 600; display: flex; justify-content: space-between; gap: 10px; margin-top: auto; }
 .section-bottom { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 18px; padding-top: 25px; }
