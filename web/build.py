@@ -8,6 +8,7 @@ import re
 from pathlib import Path
 from urllib.parse import urlsplit
 
+from web.brand import brand_css
 from web.lessons import LESSONS, PUBLIC_IDS, ROOT, SAMPLES
 from web.paths import BASE, PREFIX, SITE
 
@@ -18,6 +19,7 @@ def build(destination, *, ga4_id=None):
     ga4_id = os.environ.get("PUBLIC_GA4_MEASUREMENT_ID", "") if ga4_id is None else ga4_id
     if ga4_id and not re.fullmatch(r"G-[A-Z0-9]+", ga4_id):
         raise ValueError("PUBLIC_GA4_MEASUREMENT_IDの形式が不正です。")
+    preset_css = brand_css()
     destination = Path(destination)
     if destination.exists() and any(destination.iterdir()):
         raise ValueError("空の出力先を指定してください。")
@@ -28,8 +30,9 @@ def build(destination, *, ga4_id=None):
 
     html = (ROOT / "demo" / "index.html").read_text(encoding="utf-8")
     html = html.replace(
-        '<html lang="ja">',
-        f'<html lang="ja" data-public-demo="true" data-api-base="{PREFIX}">',
+        '<html lang="ja"',
+        f'<html lang="ja" data-public-demo="true" data-api-base="{PREFIX}"',
+        1,
     )
     start, end = html.index('  <details id="adapter-demo"'), html.index("</main>")
     html = html[:start] + html[end:]
@@ -57,7 +60,13 @@ def build(destination, *, ga4_id=None):
     for path in (ROOT / "demo").iterdir():
         if path.suffix not in {".js", ".css"} or path.name == "adapter.js":
             continue
-        content = path.read_text(encoding="utf-8").replace("/demo/", BASE + "demo/")
+        content = path.read_text(encoding="utf-8")
+        if path.name == "landing.css":
+            reference = '@import "/demo/brand-preset/base.css";'
+            if reference not in content:
+                raise ValueError("会社プリセットのCSS参照がありません")
+            content = content.replace(reference, preset_css, 1)
+        content = content.replace("/demo/", BASE + "demo/")
         filename = f"{path.stem}.{hashlib.sha256(content.encode()).hexdigest()[:16]}{path.suffix}"
         (product / "assets" / filename).write_text(content, encoding="utf-8")
         original = "/landing.css" if path.name == "landing.css" else f"/demo/{path.name}"

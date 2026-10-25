@@ -29,6 +29,7 @@ async function main() {
   page.on("response", response => { if (response.status() >= 400) failures.push(`${response.status()} ${response.url()}`); });
   await page.goto(`${url}/`);
   const landingStyle = await page.evaluate(() => ({background: getComputedStyle(document.body).backgroundColor, font: getComputedStyle(document.body).fontFamily}));
+  const accent = await page.locator(".site-header .button").evaluate(element => getComputedStyle(element).backgroundColor);
   await page.keyboard.press("Tab");
   assert.equal(await page.locator(".skip-link").evaluate(element => element === document.activeElement), true);
   await page.keyboard.press("Enter");
@@ -65,7 +66,7 @@ async function main() {
       if (path === "/demo/#demand") await page.waitForFunction(() => feature?.current && !featureController);
       if (path.startsWith("/demo/")) {
         assert.deepEqual(await page.evaluate(() => ({background: getComputedStyle(document.body).backgroundColor, font: getComputedStyle(document.body).fontFamily})), landingStyle);
-        if (path.includes("#")) assert.equal(await page.locator("#feature-try").evaluate(element => getComputedStyle(element).backgroundColor), "rgb(67, 91, 53)");
+        if (path.includes("#")) assert.equal(await page.locator("#feature-try").evaluate(element => getComputedStyle(element).backgroundColor), accent);
         await page.screenshot({path: `test-results/demo-${path.includes("#") ? "demand" : "list"}-${width}.png`, fullPage: true});
       }
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${path} / ${width}px`);
