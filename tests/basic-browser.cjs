@@ -7,13 +7,14 @@ module.exports = async (browser, url, report) => {
   const ready=()=>page.waitForFunction(()=>feature?.current&&!document.getElementById("feature-controls").disabled);
   const controls={skills:["#basic-skill","1"],availability:["#basic-availability","none"],shift_candidates:["#basic-start","11:00"],breaks:["#basic-break","2026-10-05T11:00:00+09:00"],overnight:["#basic-night-end","2026-10-06T07:00:00+09:00"],split_shift:["#basic-gap","360"],coverage_24h:["#basic-need","2"],coverage_48h:["#basic-rest","1020"]};
   for (const lesson of lessons) {
-    await page.goto(url);await page.locator(`#feature-list a[href="#${lesson.id}"]`).click();await ready();
+    await page.goto(`${url}#feature-list`);await page.locator(`#feature-list a[href="#${lesson.id}"]`).click();await ready();
     assert.equal(await page.evaluate(()=>location.hash),`#${lesson.id}`);
     const baseline=await page.evaluate(()=>structuredClone(feature.current));
     for (const step of lesson.steps) {
       if (step.id!=="initial") {
         if(step.id==="restored")await page.locator("#feature-restore").click();
         else {
+          if (!await page.locator(".feature-more").evaluate(element => element.open)) await page.locator(".feature-more > summary").click();
           await page.locator(`[data-step="${step.id}"]`).click();
           assert.equal(await page.locator(".feature-overview").count(),0);
           assert.match(await page.locator("#feature-status").innerText(),/未計算/);

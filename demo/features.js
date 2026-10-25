@@ -61,6 +61,7 @@ function featureMetric(label, before, after, unit, warning = false) {
 
 function featureSummary(pair, base) {
   const comparable = base && operationView(lesson.operation, base.response).validPlan;
+  const initial = ["demand", "consecutive_days"].includes(lesson.id) && !featureChanges(lesson.editable_fields, feature.initial, pair.input).length;
   const cards = [];
   if (isWorkLesson()) cards.push(...basicCards(pair, base));
   if (lesson.id === "demand") {
@@ -97,7 +98,8 @@ function featureSummary(pair, base) {
   const summary = node("div", "", {class: "feature-summary"}, cards);
   const title = shortage ? "必要人数を満たせない時間帯があります" : "必要人数をすべて満たしています";
   return node("section", "", {class: "feature-overview", "aria-label": "変更と結果の要点"}, [
-    node("h3", title), node("p", "必須条件は守れています。", {class: "feature-validity"}), summary,
+    node("h3", title, {class: shortage ? "feature-warning" : ""}), node("p", "必須条件は守れています。", {class: "feature-validity"}),
+    initial ? node("p", `初期条件の計算結果 · 不足${shortage}人分`, {class: "feature-initial"}) : summary,
     ...(shortage ? [node("ul", "", {class: "feature-shortage-locations"}, pair.response.shortage_summary.shortages.map(item =>
       node("li", `${pair.input.roles.find(role => role.id === item.role_id).label} · ${datedRange(item.interval)} · 不足${item.missing_people}人`)))] : []),
     ...(shortage ? [node("p", "不足1人が60分続くと60人分です。追加する従業員の人数とは異なります。", {class: "note"})] : []),
@@ -135,18 +137,19 @@ function featurePlan(pair, base = null) {
       const now = counts(pair, role.id, slot), before = comparable ? counts(base, role.id, slot) : null;
       return now.assigned < now.required || (before && (now.assigned !== before.assigned || now.required !== before.required));
     }));
-    return scroll("必要人数と配置人数", table("12:00〜13:00と、人数変化・不足のある時間帯 · ● 配置 / □ 不足", ["役割", ...grid.map(slot => slot.label)],
+    const coverage = table("12:00〜13:00と、人数変化・不足のある時間帯 · 配置 / 必要人数", ["役割", ...grid.map(slot => slot.label)],
       pair.input.roles.map(role => node("tr", "", {}, [node("th", role.label, {scope: "row"}), ...grid.map(slot => {
         const now = counts(pair, role.id, slot), before = comparable ? counts(base, role.id, slot) : null;
         const missing = Math.max(0, now.required - now.assigned);
         const changed = before && (now.required !== before.required || now.assigned !== before.assigned);
         return node("td", "", {class: `${missing ? "shortage" : ""}${changed ? " feature-changed" : ""}`}, [
-          node("span", "●".repeat(now.assigned) + "□".repeat(missing), {class: "feature-people", "aria-hidden": "true"}),
           node("strong", `配置${now.assigned} / 必要${now.required}人`),
           node("small", missing ? `不足${missing}人` : "不足なし"),
           ...(changed ? [node("small", `変更 · 初期は配置${before.assigned} / 必要${before.required}人`)] : []),
         ]);
-      })]))));
+      })])));
+    coverage.classList.add("feature-coverage");
+    return scroll("必要人数と配置人数", coverage);
   }
   const area = node("div"), grid = jsonSlots(pair.input);
   renderJSONDay(pair, grid, area);
@@ -170,6 +173,7 @@ function featurePlanChanges(before, after) {
 }
 
 function renderFeature(message) {
+  renderFeatureAction();
   if (lesson.operation === "verify") return renderVerify(message);
   const area = $("feature-output"), pair = feature.current, base = feature.baseline;
   $("feature-status").textContent = message || (pair ? `${pair.response.status} · ${pair.response.status === "PARTIAL" ? "必要人数に不足のある計画です。" : pair.response.status === "OPTIMAL" ? "必須条件と需要を満たす計画です。" : stateText[pair.response.status]}` : "未計算：編集した条件で再計算してください。");
@@ -177,6 +181,7 @@ function renderFeature(message) {
   const changes = featureChanges(lesson.editable_fields, feature.initial, feature.input);
   const inputs = node("details", "", {class: "feature-input-changes"}, [node("summary", changes.length ? `変更した条件 · ${changes.length}項目` : "初期条件からの変更なし"),
     node("ul", "", {}, changes.map(text => node("li", text)))]);
+  inputs.hidden = !changes.length && !!pair;
   if (!pair) {
     inputs.open = true;
     area.append(inputs);
@@ -187,8 +192,8 @@ function renderFeature(message) {
       area.append(featureSummary(pair, base));
       if (lesson.id === "shift_count_balance") area.append(...countIndicators(pair).map(text => node("p", text)));
       const highlighted = ["demand", "consecutive_days"].includes(lesson.id);
-      area.append(node("h3", lesson.id === "demand" ? "どの時間帯が変わったか" : highlighted ? "誰の勤務が変わったか" : "現在の勤務・担当表"),
-        node("p", `${highlighted ? "枠線と「変更」は初期からの変化です。" : ""}同率解の差も含み得ます。`, {class: "note"}), featurePlan(pair, base), inputs);
+      area.append(featurePlan(pair, base),
+        node("p", `${highlighted ? "「変更」は初期結果との比較です。" : ""}同率解の差も含み得ます。`, {class: "note"}), inputs);
       const proven = pair.response.shortage_summary.proven_minimal && pair.response.priority_summary.groups.every(item => item.proven_minimal) &&
         pair.response.objectives.every(item => item.proven_optimal);
       const proof = node("details", "", {class: "feature-proof"}, [node("summary", "条件の検証・不足・最適性の詳しい情報"),
@@ -200,7 +205,7 @@ function renderFeature(message) {
       }
       if (base && operationView(lesson.operation, base.response).validPlan) {
         const differences = featurePlanChanges(base, pair);
-        area.append(node("details", "", {}, [node("summary", `勤務・担当の差分：${differences.length}件`),
+        if (differences.length) area.append(node("details", "", {}, [node("summary", `勤務・担当の差分：${differences.length}件`),
           node("p", "同率解の差も含み得ます。表示比較であり、変更最小化ではありません。"),
           node("ul", "", {}, differences.map(text => node("li", text)))]));
       } else area.append(node("p", "初期結果に有効な計画がないため勤務表の差分は比較できません。"));
@@ -210,13 +215,23 @@ function renderFeature(message) {
       area.append(inputs, node("p", "解がないため勤務表の差分は比較できません。入力と状態を比較してください。"));
     }
     if (!operationView(lesson.operation, pair.response).validPlan) area.append(...pair.response.diagnostics.map(item => node("p", `${item.code}：${item.message} (${item.json_pointer ?? ""})`)));
-    const technical = node("details", "", {}, [node("summary", "入力・診断・保存した結果（詳細）"),
+    const technical = node("details", "", {}, [node("summary", "この例のJSON・診断・保存した結果"),
       details("全診断", pair.response.diagnostics), details("確定入力・全Response・目的と証明範囲", pair)]);
     if (base) technical.append(details("初期入力と実結果", base));
     if (feature.previous) technical.append(details("変更前の結果（現在の条件には無効）", feature.previous));
     area.append(technical);
   }
   if (!pair && feature.previous) area.append(details("変更前の結果（現在の条件には無効）", feature.previous));
+}
+
+function renderFeatureAction() {
+  const labels = {demand: "3人で試す", consecutive_days: "連勤上限3日で試す", verify: "Bobに変更して検証する"};
+  const initial = labels[lesson.id] && feature.current && JSON.stringify(feature.input) === JSON.stringify(feature.initial);
+  $("feature-try").hidden = !initial;
+  $("feature-try").textContent = labels[lesson.id] || "";
+  $("feature-run").classList.toggle("primary", !initial);
+  $("feature-first-guide").textContent = featureController && !feature.current ? "結果を確かめています。しばらくお待ちください。" : initial ? "まずは下のボタンで、一つの条件を変えてみましょう。" :
+    feature.current ? "数値や担当を変えて、初期結果と比べてみましょう。" : "変更はまだ結果に反映されていません。実行して確かめましょう。";
 }
 
 function featureEdited(input) {
@@ -264,21 +279,23 @@ function renderFeatureFields() {
   }
 }
 
+function applyFeatureStep(step) {
+  const request = clone(step.restore ? feature.initial : feature.input);
+  if (lesson.operation === "verify") featureEdited(editKitchen(request, step.changes.kitchen_employee));
+  else {
+    for (const [collection, changes] of Object.entries(step.changes))
+      for (const [id, values] of Object.entries(changes)) Object.assign(request[collection].find(item => item.id === id), clone(values));
+    featureEdited(request);
+  }
+  renderFeatureFields();
+  $("feature-run").focus({preventScroll: true});
+}
+
 function renderFeatureGuide() {
-  $("feature-guide").replaceChildren(node("strong", "試す変更（入力後に実行してください）"));
+  $("feature-guide").replaceChildren(node("p", "変更を入力した後、計算・検証してください。", {class: "note"}));
   for (const step of lesson.steps.slice(1).filter(step => !step.restore || Object.keys(step.changes).length)) {
     const button = node("button", step.instruction, {type: "button", "data-step": step.id});
-    button.addEventListener("click", () => {
-      const request = clone(step.restore ? feature.initial : feature.input);
-      if (lesson.operation === "verify") {
-        featureEdited(editKitchen(request, step.changes.kitchen_employee)); renderFeatureFields(); $("feature-run").focus(); return;
-      }
-      for (const [collection, changes] of Object.entries(step.changes))
-        for (const [id, values] of Object.entries(changes)) Object.assign(request[collection].find(item => item.id === id), clone(values));
-      featureEdited(request);
-      renderFeatureFields();
-      $("feature-run").focus();
-    });
+    button.addEventListener("click", () => applyFeatureStep(step));
     $("feature-guide").append(button);
   }
 }
@@ -335,11 +352,16 @@ async function runFeature(userInitiated = false) {
 }
 
 async function routeFeature() {
+  if (location.hash === "#main" && feature) return;
   const revision = ++routeRevision;
   featureController?.abort(); featureController = null;
   if (feature) feature.edit(feature.input);
   feature = null;
-  const id = location.hash.slice(1);
+  const id = location.hash.slice(1).replace(/^main$/, "") || "demand";
+  for (const link of document.querySelectorAll(".demo-nav a")) {
+    if (link.hash === `#${id}`) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  }
   if (publicDemo) {
     $("feature-list").hidden = $("feature-demo").hidden = true;
   } else {
@@ -367,7 +389,7 @@ async function routeFeature() {
   lesson = lessons.find(item => item.id === id);
   if (!lesson) {
     $("feature-list").hidden = false;
-    $("feature-list").querySelector("[role=status]").textContent = id ? `${topic?.title || id}：準備中です。実装済みの機能を選んでください。` : "実装済みの機能を選んでください。";
+    $("feature-list").querySelector("[role=status]").textContent = id && id !== "feature-list" ? `${topic?.title || id}：準備中です。実装済みの機能を選んでください。` : "実装済みの機能を選んでください。";
     return;
   }
   $("feature-demo").hidden = false;
@@ -375,6 +397,9 @@ async function routeFeature() {
   $("feature-title").focus();
   $("feature-status").textContent = "初期教材を読み込んでいます。";
   $("feature-output").replaceChildren();
+  for (const id of ["feature-fields", "feature-guide", "feature-premises", "feature-intro", "feature-context", "feature-first-guide"]) $(id).replaceChildren();
+  $("feature-try").hidden = true;
+  $("feature-result").setAttribute("aria-busy", "false");
   $("feature-controls").disabled = true;
   try {
     const response = await fetch(`/demo/samples/${lesson.request_file}`);
@@ -390,9 +415,11 @@ async function routeFeature() {
     if (revision !== routeRevision) return;
     feature = featureState(input, lesson.operation);
     $("feature-run").textContent = lesson.operation === "verify" ? "再検証" : "再計算";
-    $("feature-intro").textContent = lesson.intro || (lesson.id === "demand" ? "12:00〜13:00のホール人数だけを編集します。必須の最低人数は0人で、必要人数を残した不足を表示します。" :
+    const intro = lesson.intro || (lesson.id === "demand" ? "12:00〜13:00のホール人数だけを編集します。必須の最低人数は0人で、必要人数を残した不足を表示します。" :
       "連勤上限だけを5日から3日へ変えます。Aの希望を優先する選好、B・Cの交代要員、各日09:00〜10:00の需要1人が前提です。");
-    $("feature-premises").replaceChildren(node("p", `${request.employees.length}人 / ${datedRange(request.planning_window)} / ${request.planning_window.slot_minutes}分刻み / ${lesson.operation === "verify" ? "公開verify：探索なし" : `探索予算${request.solver.time_limit_seconds}秒（総応答時間とは別）`}`),
+    $("feature-intro").textContent = {demand: "ホールの必要人数を変えて、配置と不足の変化を確かめます。", consecutive_days: "連勤上限を変えて、誰の勤務が変わるか確かめます。", verify: "担当を手で変えて、条件違反や不足がないか確かめます。"}[lesson.id] || intro;
+    $("feature-context").textContent = `架空の${request.employees.length}人 · ${request.planning_window.start.slice(0, 10)}開始 · Asia/Tokyo`;
+    $("feature-premises").replaceChildren(node("p", intro), node("p", `${request.employees.length}人 / ${datedRange(request.planning_window)} / ${request.planning_window.slot_minutes}分刻み / ${lesson.operation === "verify" ? "公開verify：探索なし" : `探索予算${request.solver.time_limit_seconds}秒（総応答時間とは別）`}`),
       node("p", `目的順序：${request.objectives.map(item => item.metric).join(" → ") || "なし"}`),
       ...(lesson.premises || []).map(text => node("p", text)),
       details("技能・需要・候補・希望・必須条件を含む全入力", input));
@@ -405,6 +432,15 @@ async function routeFeature() {
 }
 
 $("feature-form").addEventListener("submit", event => { event.preventDefault(); runFeature(true); });
+$("feature-try").addEventListener("click", () => {
+  if (!feature || featureController) return;
+  applyFeatureStep(lesson.steps[1]);
+  runFeature(true);
+});
+$("feature-view-result").addEventListener("click", () => {
+  $("feature-status").focus({preventScroll: true});
+  $("feature-result").scrollIntoView({block: "start"});
+});
 $("feature-restore").addEventListener("click", () => {
   featureController?.abort(); featureController = null;
   feature.restore(); renderFeatureFields(); renderFeature();
