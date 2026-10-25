@@ -4,7 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 
-DIRECTORY = Path(__file__).resolve().parents[1] / "demo" / "brand-preset"
+DIRECTORY = Path(__file__).resolve().parents[1] / "web" / "vendor" / "brand-preset"
 FILES = {"package.json", "tokens.css", "base.css", "README.md"}
 
 

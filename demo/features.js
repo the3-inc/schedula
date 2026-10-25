@@ -230,6 +230,7 @@ function renderFeatureAction() {
   $("feature-try").hidden = !initial;
   $("feature-try").textContent = labels[lesson.id] || "";
   $("feature-run").classList.toggle("primary", !initial);
+  $("feature-run").classList.toggle("the3-button", !initial);
   $("feature-first-guide").textContent = featureController && !feature.current ? "結果を確かめています。しばらくお待ちください。" : initial ? "まずは下のボタンで、一つの条件を変えてみましょう。" :
     feature.current ? "数値や担当を変えて、初期結果と比べてみましょう。" : "変更はまだ結果に反映されていません。実行して確かめましょう。";
 }

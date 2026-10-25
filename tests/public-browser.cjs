@@ -73,6 +73,23 @@ async function checkFocusContrast(page, selector) {
     await page.getByRole("button", {name: "再計算", exact: true}).click();
     await page.locator("#feature-status").filter({hasText: "PARTIAL"}).waitFor({timeout: 45000});
     assert.match(await page.locator("#feature-output").innerText(), /60人分/);
+    for (const colorScheme of ["light", "dark"]) {
+      await page.emulateMedia({colorScheme});
+      const contrast = await page.locator(".feature-shortage-locations").evaluate(element => {
+        const luminance = color => {
+          const rgb = color.match(/[\d.]+/g).slice(0, 3).map(Number).map(value => {
+            value /= 255;
+            return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+          });
+          return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
+        };
+        const foreground = luminance(getComputedStyle(element).color);
+        const background = luminance(getComputedStyle(document.querySelector(".feature-result-panel")).backgroundColor);
+        return (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05);
+      });
+      assert(contrast >= 4.5, `${colorScheme}: shortage text contrast ${contrast}`);
+    }
+    await page.emulateMedia({colorScheme: "light"});
     assert.deepEqual(await page.evaluate(() => window.analyticsEvents), [["event", "demo_run_success", {
       lesson_id: "demand", operation: "solve", result_status: "PARTIAL",
     }]]);
@@ -116,10 +133,36 @@ async function checkFocusContrast(page, selector) {
     await fs.mkdir(destination, {recursive: true});
     await page.screenshot({path: path.join(destination, "guide.png"), fullPage: true});
     if (process.env.COMPANY_SITE_DIR) {
+      for (const colorScheme of ["light", "dark"]) {
+        await page.emulateMedia({colorScheme});
+        let reference;
+        for (const url of [base, base + "demo/", base + "docs/"]) {
+          await page.goto(url);
+          if (url.endsWith("demo/")) await page.waitForFunction(() => feature?.current && !featureController);
+          const style = await page.evaluate(() => {
+            const body = getComputedStyle(document.body), header = getComputedStyle(document.querySelector(".the3-site-header"));
+            const button = getComputedStyle(document.querySelector(".the3-button"));
+            const probe = document.body.appendChild(document.createElement("input"));
+            probe.type = "text";
+            probe.disabled = true;
+            const field = getComputedStyle(probe);
+            const control = {background: field.backgroundColor, ink: field.color, radius: field.borderRadius, minHeight: field.minHeight, opacity: field.opacity};
+            probe.remove();
+            return {background: body.backgroundColor, ink: body.color, font: body.fontFamily, lineHeight: body.lineHeight, headerBackground: header.backgroundColor, headerInk: header.color, buttonBackground: button.backgroundColor, buttonInk: button.color, radius: button.borderRadius, control};
+          });
+          reference ||= style;
+          assert.deepEqual(style, reference, `${colorScheme}: ${url}`);
+          for (const width of [320, 390, 1440]) {
+            await page.setViewportSize({width, height: 900});
+            assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${colorScheme}: ${url} / ${width}`);
+          }
+          await page.screenshot({path: path.join(destination, `${colorScheme}-${url.endsWith("demo/") ? "demo" : url.endsWith("docs/") ? "docs" : "company"}.png`), fullPage: true});
+        }
+      }
       await page.goto(base);
-      await page.getByRole("link", {name: "試してみる"}).first().click();
+      await page.getByRole("link", {name: "必要人数のデモを試す", exact: true}).click();
       await page.locator("#feature-status").filter({hasText: "OPTIMAL"}).waitFor({timeout: 45000});
-      await page.getByRole("link", {name: "ライブラリの紹介へ戻る"}).click();
+      await page.getByRole("link", {name: "shift-schedula ホーム"}).click();
       await page.getByRole("heading", {name: "シフト作成を、自社の業務に。"}).waitFor();
       await page.getByRole("link", {name: "技術案内・利用方法を見る"}).click();
       await page.getByRole("link", {name: "導入を相談する", exact: false}).first().click();

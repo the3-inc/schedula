@@ -215,7 +215,7 @@ viewportへ反映されず、狭い画面の現状評価はできていない。
 
 | 責任 | 対象と確認内容 |
 | --- | --- |
-| デモの構造・見た目 | `demo/index.html`、`demo/style.css`、必要な範囲の `demo/landing.css`。共通CSS変更は技術案内にも影響するため確認 |
+| デモの構造・見た目 | `demo/index.html`、`demo/style.css`、必要な範囲の `web/styles/global.css`。共通CSS変更は技術案内にも影響するため確認 |
 | 入口・状態・結果 | `demo/features.js`、`demo/feature-state.js`、`demo/verify-demo.js`。既存の計算・状態管理・検証結果を再利用 |
 | 会社側の紹介 | 別リポジトリ landing-page の製品紹介。デモCTAの位置と共通ヘッダーの色を両側で確認 |
 | 教材・契約 | 既存の `catalog.json`・`lessons.json`・Request/Responseを維持。架空の日付・資格・需要をUI都合で補わない |
