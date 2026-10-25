@@ -1,5 +1,6 @@
 import json
 import shutil
+import subprocess
 
 import pytest
 
@@ -58,3 +59,20 @@ def test_local_server_serves_the_fixed_css_imports(http_server):
         status, media, content = get(http_server, f"/demo/brand-preset/{name}")
         assert status == 200 and media.startswith("text/css")
         assert content == (DIRECTORY / name).read_text()
+
+
+def test_pinned_bytes_survive_git_crlf_checkout(tmp_path):
+    repository = tmp_path / "source"
+    preset = repository / "demo" / "brand-preset"
+    shutil.copytree(DIRECTORY, preset)
+    shutil.copyfile(DIRECTORY.parents[1] / ".gitattributes", repository / ".gitattributes")
+
+    def git(*arguments):
+        return subprocess.run(["git", *arguments], cwd=repository, check=True, capture_output=True)
+
+    git("init", "-q")
+    git("-c", "core.autocrlf=true", "add", ".")
+    git("-c", "user.name=Test", "-c", "user.email=test@example.invalid", "commit", "-qm", "preset")
+    checkout = tmp_path / "checkout"
+    git("clone", "-q", "-c", "core.autocrlf=true", str(repository), str(checkout))
+    assert brand_css(checkout / "demo" / "brand-preset") == brand_css()

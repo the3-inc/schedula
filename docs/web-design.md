@@ -5,6 +5,7 @@
 
 共通の色・本文書体・フォーカスの正本は、landing-pageが配布する`@the3/brand-preset`です。
 現在は`brand-preset-v0.1.0`を`demo/brand-preset/`へ取り込み、`preset.lock.json`でアーカイブと各ファイルのSHA-256を固定します。
+固定したファイルは`.gitattributes`で改行変換を無効にし、Windows等でも配布時のバイト列を保持します。
 取得は更新時だけ実行し、通常の開発・CI・公開ビルドはコミット済みのCSSを使います。Node.jsやレジストリ認証は追加しません。
 [導入・更新・切り戻し手順](https://github.com/the3-inc/landing-page/blob/brand-preset-v0.1.0/docs/brand-preset-distribution.md)を参照してください。
 
