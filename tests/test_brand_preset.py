@@ -96,5 +96,7 @@ def test_every_product_page_uses_global_css_without_the_landing_styles(http_serv
     for name in ("global", "landing"):
         status, media, content = get(http_server, f"/styles/{name}.css")
         assert status == 200 and media.startswith("text/css")
-        assert content == (DIRECTORY.parents[1] / "styles" / f"{name}.css").read_text()
+        assert content == (DIRECTORY.parents[1] / "styles" / f"{name}.css").read_bytes().decode(
+            "utf-8"
+        )
     assert get(http_server, "/web/vendor/brand-preset/preset.lock.json")[0] == 404
