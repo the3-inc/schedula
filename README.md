@@ -448,3 +448,9 @@ PyPI公開には `pypi` Environment を使用します。Webサービスのprodu
 
 需要priorityは省略0。不足総量を先に最小化し、同量ならpriority群の降順、指定目的の順に比較します。
 [現行契約](docs/io-contract-current.md#日時担当配置需要)と[1人・2役割の例](examples/demand_priority.json)を参照してください。
+
+## 会社共通のWebプリセット
+
+デモ・技術案内は、landing-pageの`brand-preset-v0.1.0`を`demo/brand-preset/`へ取り込んでいます。
+版とSHA-256は`preset.lock.json`で固定し、公開ビルドで整合を検査します。通常のビルドは配布元への通信を行いません。
+[製品Webのデザイン基準](docs/web-design.md)と、[配布元の導入・更新手順](https://github.com/the3-inc/landing-page/blob/brand-preset-v0.1.0/docs/brand-preset-distribution.md)を参照してください。

@@ -4,6 +4,7 @@ recursive-include src *.py *.pyi *.json py.typed
 recursive-include tests *.py *.cjs *.json
 recursive-include examples *.json *.py
 recursive-include demo *.py *.html *.css *.js
+recursive-include demo/brand-preset *.json *.md
 recursive-include scripts *.py
 include scripts/deploy
 recursive-include docs *.md *.html *.json *.py
