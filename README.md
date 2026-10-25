@@ -455,6 +455,6 @@ PyPI公開には `pypi` Environment を使用します。Webサービスのprodu
 
 ## 会社共通のWebプリセット
 
-デモ・技術案内は、landing-pageの`brand-preset-v0.1.0`を`demo/brand-preset/`へ取り込んでいます。
+LP・デモ・技術案内は、landing-pageが公開した共通CSSライブラリ`brand-preset-v0.2.0`を`web/vendor/brand-preset/`へ取り込み、`web/styles/global.css`と合わせて共有しています。
 版とSHA-256は`preset.lock.json`で固定し、公開ビルドで整合を検査します。通常のビルドは配布元への通信を行いません。
-[製品Webのデザイン基準](docs/web-design.md)と、[配布元の導入・更新手順](https://github.com/the3-inc/landing-page/blob/brand-preset-v0.1.0/docs/brand-preset-distribution.md)を参照してください。
+[製品Webのデザイン基準](docs/web-design.md)と、[配布元の導入・更新手順](https://github.com/the3-inc/landing-page/blob/main/docs/brand-preset-distribution.md)を参照してください。

@@ -1,16 +1,17 @@
 <!doctype html>
-<html lang="ja" data-theme="light">
+<html lang="ja">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="shift-schedulaの導入、Python API、入出力と検証結果の読み方。自社システムへの組み込みを始めるためのドキュメント。">
   <title>ドキュメント | shift-schedula</title>
-  <link rel="stylesheet" href="/landing.css">
+  <link rel="stylesheet" href="/brand-preset/base.css">
+  <link rel="stylesheet" href="/styles/global.css">
 </head>
 <body>
-<a class="skip-link" href="#main">本文へ移動</a>
-<header class="site-header"><div class="brand-family"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">s.</span>shift-schedula</a><a class="company-link" href="https://the3.co.jp/">the3合同会社の製品</a></div><nav aria-label="メインナビゲーション"><a href="/demo/">デモ</a><a href="/docs.html" aria-current="page">ドキュメント</a><a class="button small" href="/#contact">導入を相談する <span aria-hidden="true">↗</span></a></nav></header>
-<main id="main" class="wrap guide">
+<a class="skip-link the3-skip-link" href="#main">本文へ移動</a>
+<header class="site-header the3-site-header"><div class="brand-family"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">s.</span>shift-schedula</a><a class="company-link" href="https://the3.co.jp/">the3合同会社の製品</a></div><nav aria-label="メインナビゲーション"><a href="/demo/">デモ</a><a href="/docs.html" aria-current="page">ドキュメント</a><a class="button the3-button small the3-button-compact" href="/#contact">導入を相談する <span aria-hidden="true">↗</span></a></nav></header>
+<main id="main" class="wrap the3-container guide">
   <p class="eyebrow">DOCUMENTATION</p>
   <h1>自社の仕組みに、組み込む。</h1>
   <p>shift-schedulaは、担当配置と勤務計画を計算・検証するPythonライブラリです。まずはデモで挙動を確認し、入力条件と結果の扱いを確認してください。</p>
@@ -33,8 +34,8 @@ if checked["status"] == "VALID":
 else:
     print(checked["diagnostics"])</code></pre><p>本番の組み込みでは、求解後の状態・不足・検証結果を確認して採用を判断します。入力不備、未確定、内部障害も別の状態で返されます。</p><div class="guide-links"><a href="/docs/python-api.md">公開APIとエラー処理（Markdown） ↗</a></div></section>
   <section aria-labelledby="contract-title"><h2 id="contract-title">3. 条件と結果を理解する</h2><ol><li><strong>入力する：</strong>技能、役割、従業員、勤務可能時間、需要、勤務候補、ルールなどを指定します。現在の通常入口は <code>schema_version: "0.15"</code> です。</li><li><strong>計算する：</strong>担当配置は人・時間帯・役割を、勤務計画は出退勤・休憩も含めて扱います。</li><li><strong>結果を読む：</strong><code>OPTIMAL</code> は指定条件と候補集合で最適性が証明された結果、<code>FEASIBLE</code> は最適性未証明の実行可能な結果です。<code>PARTIAL</code> は不足を伴う有効な計画です。</li><li><strong>不成立・未確定を分ける：</strong><code>INFEASIBLE</code> は解が存在しないと証明された状態、<code>UNKNOWN</code> は未確定です。入力不備や内部障害とも区別します。</li><li><strong>手修正後も検証する：</strong><code>verify(request, solution)</code> で元の条件への適合を確認できます。この検証は最適性や不足最小性を認定しません。</li></ol><p class="guide-note">独立検証の成功は、完全な需要充足や法令・就業規則への適合を保証しません。不足の有無は状態と不足集計から確認します。</p><div class="guide-links"><a href="/docs/io-contract-current.md">現行の入出力仕様（Markdown） ↗</a><a href="/docs/distribution.md">配布・サポート範囲（Markdown） ↗</a><a href="/license.txt">MITライセンス ↗</a></div></section>
-  <section aria-labelledby="help-title"><h2 id="help-title">自社の業務への適用を相談する</h2><p>勤務ルールの整理、データ連携、入力・比較・承認画面など、組み込みに必要な範囲から相談できます。対応可否と進め方は要件を確認して決めます。</p><div class="guide-links"><a class="button" href="/#contact">導入・個別開発について相談する <span aria-hidden="true">↗</span></a></div></section>
+  <section aria-labelledby="help-title"><h2 id="help-title">自社の業務への適用を相談する</h2><p>勤務ルールの整理、データ連携、入力・比較・承認画面など、組み込みに必要な範囲から相談できます。対応可否と進め方は要件を確認して決めます。</p><div class="guide-links"><a class="button the3-button" href="/#contact">導入・個別開発について相談する <span aria-hidden="true">↗</span></a></div></section>
 </main>
-<footer class="site-footer wrap"><a class="brand" href="/">shift-schedula</a><nav aria-label="フッターナビゲーション"><a href="/">ホーム</a><a href="/demo/">デモ</a><a href="/license.txt">MIT License</a></nav></footer>
+<footer class="site-footer wrap the3-container"><a class="brand" href="/">shift-schedula</a><nav aria-label="フッターナビゲーション"><a href="/">ホーム</a><a href="/demo/">デモ</a><a href="/license.txt">MIT License</a></nav></footer>
 </body>
 </html>

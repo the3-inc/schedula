@@ -1,10 +1,11 @@
 <!doctype html>
-<html lang="ja" data-theme="light">
+<html lang="ja">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>機能を試す | shift-schedula</title>
-  <link rel="stylesheet" href="/landing.css">
+  <link rel="stylesheet" href="/brand-preset/base.css">
+  <link rel="stylesheet" href="/styles/global.css">
   <link rel="stylesheet" href="/demo/style.css">
   <script src="/demo/app.js" defer></script>
   <script src="/demo/adapter.js" defer></script>
@@ -16,12 +17,12 @@
   <script src="/demo/features.js" defer></script>
 </head>
 <body>
-<a class="skip-link" href="#main">本文へ移動</a>
-<header class="site-header demo-header">
+<a class="skip-link the3-skip-link" href="#main">本文へ移動</a>
+<header class="site-header the3-site-header demo-header">
   <div class="brand-family"><a class="brand" href="/" aria-label="shift-schedula ホーム"><span class="brand-mark" aria-hidden="true">s.</span>shift-schedula</a><a class="company-link" href="https://the3.co.jp/">the3合同会社の製品</a></div>
-  <nav aria-label="メインナビゲーション"><a href="/demo/" aria-current="page">デモ</a><a href="/docs.html">ドキュメント</a><a class="button small" href="/#contact">導入を相談する <span aria-hidden="true">↗</span></a></nav>
+  <nav aria-label="メインナビゲーション"><a href="/demo/" aria-current="page">デモ</a><a href="/docs.html">ドキュメント</a><a class="button the3-button small the3-button-compact" href="/#contact">導入を相談する <span aria-hidden="true">↗</span></a></nav>
 </header>
-<main id="main" class="wrap demo-main">
+<main id="main" class="wrap the3-container demo-main">
   <div class="demo-heading">
     <h1><span>条件を変えて、</span><span>配置の違いを見る</span></h1>
     <p>架空データで試せます。条件を変える → 計算する → 初期結果と比べる。</p>
@@ -40,8 +41,8 @@
             <div id="feature-fields"></div>
             <p id="feature-first-guide" class="feature-first-guide"></p>
             <div class="actions">
-              <button id="feature-try" class="primary" type="button" hidden></button>
-              <button id="feature-run" class="primary" type="submit">再計算</button>
+              <button id="feature-try" class="primary the3-button the3-button-compact" type="button" hidden></button>
+              <button id="feature-run" class="primary the3-button the3-button-compact" type="submit">再計算</button>
               <button id="feature-restore" type="button">初期条件へ戻す</button>
             </div>
             <button id="feature-view-result" type="button">結果を見る</button>
@@ -86,7 +87,7 @@
       <button id="adapter-check" type="button">入力を検査</button>
       <label for="adapter-source">確認する入力元</label><select id="adapter-source"></select>
       <button id="adapter-confirm" type="button">この入力元を確認</button>
-      <button id="adapter-run" class="primary" type="button">確定入力で計算</button>
+      <button id="adapter-run" class="primary the3-button the3-button-compact" type="button">確定入力で計算</button>
       <button id="adapter-save-draft" type="button">Draftを保存</button>
       <button id="adapter-save-record" type="button" disabled>実行記録を保存</button>
       <button id="adapter-reverify" type="button" disabled>保存記録を再検証</button>
@@ -120,7 +121,7 @@
         <p class="note">契約0.15のみ対応。旧版・未知版・版欠落は拒否します。ファイル・本文は2 MiBまで。勤務計画と一般の正の最低人数には OR-Tools が必要です。</p>
         <label for="json-input">計算する JSON</label>
         <textarea id="json-input" rows="12" spellcheck="false" required></textarea>
-        <div class="actions"><button class="primary" id="json-calculate" type="submit">JSON で計算</button></div>
+        <div class="actions"><button class="primary the3-button the3-button-compact" id="json-calculate" type="submit">JSON で計算</button></div>
       </fieldset>
     </form>
     <section id="json-result" aria-busy="false" aria-label="JSON の計算結果">
@@ -148,7 +149,7 @@
           <section>
             <h2>役割ごとの必要人数</h2>
             <div id="demand" class="scroll" tabindex="0" role="region" aria-label="必要人数の条件表"></div>
-            <div class="actions"><button class="primary" id="calculate" type="submit">再計算</button></div>
+            <div class="actions"><button class="primary the3-button the3-button-compact" id="calculate" type="submit">再計算</button></div>
             <p class="note">各枠0〜6人を入力します。条件を自動で緩めることはありません。</p>
           </section>
         </div>
@@ -170,6 +171,6 @@
     </fieldset>
   </form>
 </main>
-<footer class="site-footer wrap"><p>架空入力を使うローカルデモです。試験値は就業規則や法令の推奨値ではありません。全44主題の展開と利用者評価は進行中です。</p><a href="/">ライブラリの紹介へ戻る <span aria-hidden="true">→</span></a></footer>
+<footer class="site-footer wrap the3-container"><p>架空入力を使うローカルデモです。試験値は就業規則や法令の推奨値ではありません。全44主題の展開と利用者評価は進行中です。</p><a href="/">ライブラリの紹介へ戻る <span aria-hidden="true">→</span></a></footer>
 </body>
 </html>

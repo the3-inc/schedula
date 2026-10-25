@@ -73,6 +73,32 @@ async function main() {
       if (path === "/") await page.screenshot({path: `test-results/landing-${width}.png`, fullPage: true});
     }
   }
+  for (const colorScheme of ["light", "dark"]) {
+    await page.emulateMedia({colorScheme});
+    let reference;
+    for (const path of ["/", "/demo/#demand", "/docs.html"]) {
+      await page.goto(url + path);
+      if (path.includes("#")) await page.waitForFunction(() => feature?.current && !featureController);
+      const style = await page.evaluate(() => {
+        const body = getComputedStyle(document.body), header = getComputedStyle(document.querySelector(".the3-site-header"));
+        const button = getComputedStyle(document.querySelector(".site-header .the3-button"));
+        const probe = document.body.appendChild(document.createElement("input"));
+        probe.type = "text";
+        probe.disabled = true;
+        const field = getComputedStyle(probe);
+        const control = {background: field.backgroundColor, ink: field.color, radius: field.borderRadius, minHeight: field.minHeight, opacity: field.opacity};
+        probe.remove();
+        return {background: body.backgroundColor, ink: body.color, font: body.fontFamily, lineHeight: body.lineHeight, headerBackground: header.backgroundColor, headerInk: header.color, buttonBackground: button.backgroundColor, buttonInk: button.color, radius: button.borderRadius, control};
+      });
+      reference ||= style;
+      assert.deepEqual(style, reference, `${colorScheme}: ${path}`);
+      for (const width of [320, 390, 1440]) {
+        await page.setViewportSize({width, height: 900});
+        assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${colorScheme}: ${path} / ${width}`);
+      }
+    }
+  }
+  await page.emulateMedia({colorScheme: "light"});
   await page.goto(`${url}/demo/`);
   await page.waitForFunction(() => feature?.current && !featureController);
   await page.keyboard.press("Tab");

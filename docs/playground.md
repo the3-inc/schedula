@@ -298,7 +298,7 @@ uv run --locked python demo/server.py
 
 | 経路 | 契約 |
 | --- | --- |
-| `GET /demo/` / `/demo/*.js` / `/demo/style.css` / `/landing.css` | 許可リストのHTML・JavaScript・CSSだけを返す。リポジトリ全体の配信やディレクトリ一覧は禁止 |
+| `GET /demo/` / `/demo/*.js` / `/demo/style.css` / `/styles/*.css` / `/brand-preset/*.css` | 許可リストのHTML・JavaScript・CSSだけを返す。リポジトリ全体の配信やディレクトリ一覧は禁止 |
 | `GET /demo/samples/lunch.json` / `/demo/samples/scenarios.json` | 固定サンプルと操作定義。期待値を成功結果として返さない |
 | `POST /demo/solve` | 本文に確定 Request を直接渡し、JSON Response を返す |
 

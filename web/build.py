@@ -55,21 +55,22 @@ def build(destination, *, ga4_id=None):
 
         return re.sub(r'\b(href|src)="/([^\"]*)"', replace, text)
 
+    preset_name = f"brand.{hashlib.sha256(preset_css.encode()).hexdigest()[:16]}.css"
+    (product / "assets" / preset_name).write_text(preset_css, encoding="utf-8")
+    preset_url = BASE + "assets/" + preset_name
+    html = html.replace("/brand-preset/base.css", preset_url)
+    guide = guide.replace("/brand-preset/base.css", preset_url)
     analytics_src = None
-    # scriptはimportせずdefer順で共有する。ファイル内容ごとのhashを参照する。
-    for path in (ROOT / "demo").iterdir():
+    # 製品全体のCSSとデモ資産を同じ内容hash付き配信へまとめる。
+    paths = [ROOT / "web" / "styles" / "global.css", *(ROOT / "demo").iterdir()]
+    for path in paths:
         if path.suffix not in {".js", ".css"} or path.name == "adapter.js":
             continue
         content = path.read_text(encoding="utf-8")
-        if path.name == "landing.css":
-            reference = '@import "/demo/brand-preset/base.css";'
-            if reference not in content:
-                raise ValueError("会社プリセットのCSS参照がありません")
-            content = content.replace(reference, preset_css, 1)
         content = content.replace("/demo/", BASE + "demo/")
         filename = f"{path.stem}.{hashlib.sha256(content.encode()).hexdigest()[:16]}{path.suffix}"
         (product / "assets" / filename).write_text(content, encoding="utf-8")
-        original = "/landing.css" if path.name == "landing.css" else f"/demo/{path.name}"
+        original = "/styles/global.css" if path.name == "global.css" else f"/demo/{path.name}"
         if path.name == "analytics.js":
             analytics_src = BASE + "assets/" + filename
         html = html.replace(original, BASE + "assets/" + filename)

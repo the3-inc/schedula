@@ -1,0 +1,34 @@
+/* 製品Web全体の対応付け。ブランドの値と基本スタイルはbrand-presetを使う。 */
+:root { --paper: var(--the3-paper); --ink: var(--the3-ink); --muted: var(--the3-muted); --line: var(--the3-line); --accent: var(--the3-accent); }
+p { color: var(--muted); }
+h2 { font-size: clamp(28px, 3vw, 40px); }
+h3 { font-size: 18px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 600; letter-spacing: -.04em; text-decoration: none; white-space: nowrap; }
+.brand-family { display: grid; gap: 8px; }
+.company-link { width: fit-content; color: var(--muted); font-size: 12px; padding-block: 4px; }
+.brand-mark { display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--the3-radius); background: var(--accent); color: var(--the3-on-accent); font-size: 26px; line-height: 1; }
+.site-header { border-bottom: 1px solid var(--line); }
+.site-header nav > a:not(.button) { text-decoration: none; }
+.site-header nav > a[aria-current] { text-decoration: underline; text-underline-offset: 8px; }
+.site-footer { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; gap: 20px; padding-block: 30px; border-top: 1px solid var(--line); }
+.site-footer .brand { font-size: 15px; }
+.site-footer p { font-size: 11px; }
+.site-footer nav { display: flex; flex-wrap: wrap; gap: 22px; font-size: 11px; }
+.guide { max-width: 1004px; padding-block: 65px 85px; }
+.guide h1 { font-size: clamp(30px, 4vw, 46px); margin-bottom: 20px; }
+.guide h2 { font-size: 25px; margin-bottom: 15px; }
+.guide section { padding-block: 35px; border-top: 1px solid var(--line); }
+.guide > p { margin-bottom: 30px; }
+.guide p, .guide li { font-size: 14px; line-height: 1.9; }
+.guide ol { padding-left: 22px; }
+.guide li { margin-bottom: 12px; }
+.guide pre { padding: 22px; border: 1px solid var(--line); border-radius: var(--the3-radius); background: var(--the3-surface); overflow: auto; font-size: 12px; line-height: 1.8; }
+.guide code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+.guide-note { padding: 18px 22px; border-left: 3px solid var(--accent); background: var(--the3-surface); }
+.guide-links { display: flex; flex-wrap: wrap; gap: 15px 25px; margin-top: 20px; }
+@media (max-width: 760px) {
+  .site-header nav { justify-content: space-between; width: 100%; gap: 12px; }
+  .site-header .brand { font-size: 18px; }
+  .site-footer { flex-direction: column; align-items: start; gap: 12px; padding-block: 25px; }
+  .guide { padding-top: 40px; }
+}

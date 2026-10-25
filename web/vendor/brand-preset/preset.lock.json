@@ -1,0 +1,14 @@
+{
+  "package": "@the3/brand-preset",
+  "version": "0.2.0",
+  "repository": "the3-inc/landing-page",
+  "tag": "brand-preset-v0.2.0",
+  "archive": "the3-brand-preset-0.2.0.tgz",
+  "sha256": "40cdf64dd820572bad6b95fe8d18ce10e474c2dbeae390e998be3495d48fe419",
+  "files": {
+    "README.md": "c8d854b1b4a1959f78d647e44514c24e2e12f599d0136b5eab57c9079fe2941a",
+    "base.css": "4725438a92dd710481dc5f654c710abda611479e47f8b40c32db726d4453f494",
+    "package.json": "76ed892fad8acf5acf70a86f5e4ef2bede8981cfe093013c230cb198a9fef037",
+    "tokens.css": "d246893186d9669dfa95bc313016c4485854de51f87498fbef7528ddb3ce5492"
+  }
+}

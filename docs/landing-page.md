@@ -16,8 +16,8 @@ uv run --locked python demo/server.py
 - デモ：`http://127.0.0.1:8765/demo/`
 
 LPを親の `/`、デモを子の `/demo/` に配置する。デモのJavaScript・CSS・サンプル・計算APIも `/demo/` 配下へ揃える。
-LPはJavaScriptや外部フォントを必要とせず、CSSとHTMLで表示する。デモはLPの `/landing.css` を読み込み、
-紙色・深緑・フォント・共通ヘッダーを共有し、操作フォームと結果表は専用CSSで調整する。
+LPはJavaScriptや外部フォントを必要とせず、CSSとHTMLで表示する。LP・デモ・技術案内が `/brand-preset/base.css` と `/styles/global.css` を直接読み込み、
+配色・書体・テーマ・操作の基本スタイルを共有する。LPの構成だけを `/styles/landing.css`、デモの操作パネルと結果表を専用CSSで調整する。
 
 旧 `/landing/` は `/`、末尾スラッシュのない `/demo` は `/demo/` へ308で転送する。
 旧デモの `/#demand` などのブックマークは `/demo/#demand` へ更新する。
@@ -46,7 +46,8 @@ LPは静的配信できるが、デモには計算APIの実行環境が必要と
 | URL | ファイル・接続先 |
 | --- | --- |
 | `/` | `demo/landing.html` |
-| `/landing.css` | `demo/landing.css` |
+| `/brand-preset/*.css` | `web/vendor/brand-preset/`のCSSのみ |
+| `/styles/global.css`、`/styles/landing.css` | `web/styles/`の製品共通構成・LP構成 |
 | `/docs.html` | `demo/guide.html` |
 | `/docs/*.md` | 上記4件の文書のみ |
 | `/license.txt` | `LICENSE` |

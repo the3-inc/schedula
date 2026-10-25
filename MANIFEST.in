@@ -4,7 +4,6 @@ recursive-include src *.py *.pyi *.json py.typed
 recursive-include tests *.py *.cjs *.json
 recursive-include examples *.json *.py
 recursive-include demo *.py *.html *.css *.js
-recursive-include demo/brand-preset *.json *.md
 recursive-include scripts *.py
 include scripts/deploy
 recursive-include docs *.md *.html *.json *.py
@@ -14,5 +13,6 @@ prune docs/reference
 prune docs/evaluations/results
 global-exclude __pycache__ *.py[cod] .DS_Store
 
-recursive-include web *.py Dockerfile
+recursive-include web *.py *.css Dockerfile
+recursive-include web/vendor/brand-preset *.json *.md
 include infra/README.md
