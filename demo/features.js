@@ -351,7 +351,7 @@ async function runFeature(userInitiated = false) {
   }
 }
 
-async function routeFeature() {
+async function routeFeature(event) {
   if (location.hash === "#main" && feature) return;
   const revision = ++routeRevision;
   featureController?.abort(); featureController = null;
@@ -394,7 +394,7 @@ async function routeFeature() {
   }
   $("feature-demo").hidden = false;
   $("feature-title").textContent = lesson.label;
-  $("feature-title").focus();
+  if (event) $("feature-title").focus();
   $("feature-status").textContent = "初期教材を読み込んでいます。";
   $("feature-output").replaceChildren();
   for (const id of ["feature-fields", "feature-guide", "feature-premises", "feature-intro", "feature-context", "feature-first-guide"]) $(id).replaceChildren();

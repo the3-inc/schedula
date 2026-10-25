@@ -65,7 +65,7 @@ async function main() {
       if (path === "/demo/#demand") await page.waitForFunction(() => feature?.current && !featureController);
       if (path.startsWith("/demo/")) {
         assert.deepEqual(await page.evaluate(() => ({background: getComputedStyle(document.body).backgroundColor, font: getComputedStyle(document.body).fontFamily})), landingStyle);
-        if (path.includes("#")) assert.equal(await page.locator("#feature-run").evaluate(element => getComputedStyle(element).backgroundColor), "rgb(67, 91, 53)");
+        if (path.includes("#")) assert.equal(await page.locator("#feature-try").evaluate(element => getComputedStyle(element).backgroundColor), "rgb(67, 91, 53)");
         await page.screenshot({path: `test-results/demo-${path.includes("#") ? "demand" : "list"}-${width}.png`, fullPage: true});
       }
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${path} / ${width}px`);
@@ -73,10 +73,14 @@ async function main() {
     }
   }
   await page.goto(`${url}/demo/`);
+  await page.waitForFunction(() => feature?.current && !featureController);
   await page.keyboard.press("Tab");
   assert.equal(await page.locator(".skip-link").evaluate(element => element === document.activeElement), true);
   await page.keyboard.press("Enter");
   assert.equal(new URL(page.url()).hash, "#main");
+  await page.getByRole("link", {name: "連勤上限", exact: true}).click();
+  await page.waitForFunction(() => lesson?.id === "consecutive_days" && feature?.current && !featureController);
+  assert.equal(await page.locator("#feature-title").evaluate(element => element === document.activeElement), true);
   await page.getByRole("link", {name: "shift-schedula ホーム"}).click();
   assert.equal(new URL(page.url()).pathname, "/");
   const noScript = await browser.newContext({javaScriptEnabled: false, viewport: {width: 390, height: 844}});
