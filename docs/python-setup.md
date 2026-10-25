@@ -7,18 +7,25 @@ uv 自体の導入は [公式のインストール手順](https://docs.astral.sh
 
 ## Python と依存パッケージ
 
-2026-10-04 に、依存パッケージが対応する最新の Python として **CPython 3.14.8** を採用した。
-[Python の配布一覧](https://www.python.org/downloads/)で 3.14.8 を確認し、
-[OR-Tools 9.15.6755](https://pypi.org/project/ortools/9.15.6755/)の Python 3.14 用 wheel と、
-[jsonschema 4.26.0](https://pypi.org/project/jsonschema/4.26.0/)の対応を確認した。
-macOS ARM64 で実際に依存をインストールして動作を確認した。
-配布の最低要件は `>=3.14` とし、上限で将来版のインストールを一律に禁止しない。
-2026-10-07 の公式配布一覧では最新安定版も 3.14.8、3.15 は pre-release だったため、
-最低版と最新安定版の CI を重複させない。通常の CPython 3.14 で通常依存の隔離導入を検証する。3.15 以降・free-threaded・他の Python 実装は未検証であり、
+2026-10-25 に、3.14 系の最新パッチ **CPython 3.14.9** へ更新した。
+[公式リリース](https://www.python.org/downloads/release/python-3149/)は証明書対応を含む
+セキュリティ修正版である。`.python-version` で開発・CI の版を固定する。
+配布の最低要件は `>=3.14` を維持し、利用者向けの許容範囲と開発用の固定版を分ける。
+通常の CPython 3.14 で通常依存の隔離導入を検証する。
+3.15 以降・free-threaded・他の Python 実装は未検証であり、
 特に CP-SAT は対象 Python・OS の OR-Tools wheel が必要となる。
-`.python-version` は開発用の `3.14.8` を維持し、利用者向けの許容範囲とは分ける。
 新しい安定版が出たら通常依存で測定し、依存が未対応なら結果と制限を課題に記録する。
-uv は **0.12.23** を使用する。直接インストールした uv は `uv self update 0.12.23` で更新できる。
+
+uv は **0.13.5** を使用する。直接インストールした uv は `uv self update 0.13.5` で更新できる。
+[uv 0.13.5](https://github.com/astral-sh/uv/releases/tag/0.13.5) は、
+証明書ストア修正済みの uv と、pip 26.2.2 を含む Python ビルドを利用する。
+旧版に固定された仮想環境は自動では移行しないため、更新後に `uv sync --locked` を実行する。
+公開デモの Lambda イメージも `web/Dockerfile` の digest を更新した。
+ただし AWS の最新イメージは Python 3.14.8 のため、コンテナー全体を 3.14.9 と同等とは扱わない。
+証明書対応として pip を 26.2.2、uv を 0.13.5 へ明示的に更新する。
+AWS が 3.14.9 を提供したら digest を再更新する。
+Git hook 用の間接依存 virtualenv も 21.14.13 に更新し、古い pip の再導入を防ぐ。
+更新前からある hook 環境では `uv run --locked pre-commit clean` を実行してから hook を再実行する。
 
 | 用途 | パッケージ | 設定 |
 | --- | --- | --- |
@@ -67,6 +74,19 @@ uv sync --locked
 `dependency-groups.dev` は通常の同期で含まれる。OR-Tools も通常依存として導入される。
 旧手順の `--extra cp-sat` と wheel の `[cp-sat]` は削除する。
 
+## ブラウザー検証用 Node.js
+
+Node.js は **26.12.1** を `.nvmrc` に固定し、CI の `actions/setup-node` も同じファイルを読む。
+[公式リリース](https://nodejs.org/en/blog/release/v26.12.1)はセキュリティ修正版である。
+2026-10-25 時点では Current であり、本番の Node.js サーバーはこのリポジトリにない。
+Node.js は Playwright によるブラウザー検証に使用する。ブラウザー利用者には不要である。
+nvm を導入済みの開発環境では次を実行する。
+
+```sh
+nvm install
+nvm use
+```
+
 ## Git hook
 
 `.pre-commit-config.yaml` には Ruff の `ruff-check`（`--fix`）と `ruff-format` を設定している。
@@ -100,7 +120,7 @@ hook を使わない場合は `uv run --locked ruff check .` と
 `uv run --locked ruff format --check .` で確認する。
 両方の経路で同じ Ruff 検証を繰り返す必要はない。
 
-CI も uv 0.12.23 と `.python-version` を使い、`uv sync --locked` で環境を構築する。
+CI も uv 0.13.5 と `.python-version` を使い、`uv sync --locked` で環境を構築する。
 Ruff hookとデプロイスクリプトの構文は毎回確認し、Python・配布・画面検証は並列ジョブで実行する。
 PRでは変更内容に応じてジョブを選び、mainへのpushでは全探索比較・両バックエンド比較・
 違反検出・依存不足を含む全検証を実行する。選択条件は[CIの検証範囲](ci.md)を参照する。
@@ -131,6 +151,30 @@ Python 更新時も、依存の対応と wheel を確認して `uv python pin <v
 
 mypyは公開typingのconsumer検証に導入した。内部実装全体を型チェックしたという意味ではない。
 poethepoetは未導入で、`uv run ...` のコマンド整理が必要になったときだけ追加する。
+
+## 2026-10-25 の更新確認
+
+macOS ARM64 で Node.js 26.12.1、CPython 3.14.9、uv 0.13.5 を確認した。
+Mac の nvm の default を 26.12.1、uv 管理の `python` / `python3` を 3.14.9 に更新した。
+既存の npm 12.2.0 と Corepack 0.36.0 は新版の Node.js でも維持した。
+既に起動しているターミナルでは、開き直すか `nvm use default` を実行して新版を選ぶ。
+
+- `uv sync --locked` と `uv pip check` が成功。実行依存は据え置き、間接開発依存 virtualenv だけを更新した。
+- `uv run --locked pytest -q -ra --junitxml=test-results/runtime-update.xml` が 2,297 件と 6 subtests 成功、skip 0。
+  sdist 由来の wheel を空の環境へ導入した回帰検証も含む。追加の sdist 検査で `.nvmrc` の同梱と内容も確認した。
+- `pre-commit run --all-files` の Ruff check / format が成功。
+  Mac の Ruff v0.16.10 用 hook キャッシュも再生成し、Python 3.14.9、pip 26.2.2、certifi 2026.10.19 を確認した。
+- Node.js 26.12.1 で `tests/analytics.cjs`、`tests/feature-state.cjs`、
+  `tests/playground-browser.cjs`、`tests/landing-browser.cjs`、`tests/public-browser.cjs` が成功。
+- Linux amd64 の Lambda コンテナーをビルドし、読み取り専用実行で `web.smoke` の3教材が成功。
+  pip 26.2.2、同梱 certifi 2026.10.19、uv 0.13.5 と、問題の `emSign ECC Root CA - G3` の除去を確認した。
+- `bash -n scripts/deploy`、workflow YAML の読み込み、バージョン指定の整合性、`git diff --check` が成功。
+
+`ruff format --check .` は、未変更の `docs/io-contract-shift-counts.md`、
+`docs/migrations/contract-0.15-adapter.md`、`docs/migrations/contract-0.15-data.md` の
+既存コードブロックの整形差分を検出した。CI と同じ Python / pyi 対象の hook は成功している。
+GitHub CI、Windows での今回の実行、本番デプロイは未実施。
+AWS イメージの Python 本体は 3.14.8 のままであり、3.14.9 への更新は AWS の提供後に行う。
 
 ## セットアップ時の検証記録
 
