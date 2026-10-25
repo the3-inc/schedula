@@ -14,7 +14,9 @@
   <p class="eyebrow">DOCUMENTATION</p>
   <h1>自社の仕組みに、組み込む。</h1>
   <p>shift-schedulaは、担当配置と勤務計画を計算・検証するPythonライブラリです。まずはデモで挙動を確認し、入力条件と結果の扱いを確認してください。</p>
-  <section aria-labelledby="start-title"><h2 id="start-title">1. はじめて使う</h2><p>配布名は <code>shift-schedula</code>、import名は <code>shift_schedula</code>。Python 3.14以上が必要です。独自コード・文書・デモはMITライセンスで、商用利用も可能です。依存ライブラリはそれぞれのライセンスに従います。</p><p class="guide-note">現在はリポジトリが非公開で、PyPI公開は未実施です。ソースの入手は <a href="mailto:omitsuhashi@the3-o.com?subject=shift-schedula%20ソース入手の問い合わせ">メールでお問い合わせください</a>。以下はソースを入手した後、リポジトリ直下で実行する手順です。</p><pre><code>uv python install
+  <section aria-labelledby="start-title"><h2 id="start-title">1. はじめて使う</h2><p>配布名は <code>shift-schedula</code>、import名は <code>shift_schedula</code>。Python 3.14以上が必要です。独自コード・文書・デモはMITライセンスで、商用利用も可能です。依存ライブラリはそれぞれのライセンスに従います。</p><p class="guide-note">ソースは <a href="https://github.com/the3-inc/schedula">公開GitHubリポジトリ</a>から入手できます。配布版 <a href="https://pypi.org/project/shift-schedula/0.2.0/">shift-schedula 0.2.0</a>はPyPIで公開済みです。以下はソースを取得してデモと利用例を実行する手順です。</p><pre><code>git clone https://github.com/the3-inc/schedula.git
+cd schedula
+uv python install
 uv sync --locked
 uv run --locked python -m shift_schedula solve examples/assignment.json
 uv run --locked python demo/server.py</code></pre><div class="guide-links"><a href="/demo/">ブラウザーでデモを試す ↗</a><a href="/docs/python-setup.md">セットアップの詳細（Markdown） ↗</a></div></section>

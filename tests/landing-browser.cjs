@@ -38,7 +38,7 @@ async function main() {
   await page.locator("#contact").waitFor({state: "visible"});
   const contact = new URL(await page.getByRole("link", {name: "メールで相談する"}).getAttribute("href"));
   assert.equal(contact.protocol, "mailto:");
-  assert.equal(contact.pathname, "omitsuhashi@the3-o.com");
+  assert.equal(contact.pathname, "omitsuhashi@the3.co.jp");
   assert.ok(contact.searchParams.get("body").includes("ご相談内容"));
   assert.equal(await page.locator("form").count(), 0);
 

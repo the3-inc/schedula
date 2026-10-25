@@ -45,6 +45,8 @@ def check_pages(load):
             if link in {
                 "https://policies.google.com/technologies/partner-sites",
                 "https://tools.google.com/dlpage/gaoptout",
+                "https://github.com/the3-inc/schedula",
+                "https://pypi.org/project/shift-schedula/0.2.0/",
             }:
                 continue
             if target.scheme == "mailto":
