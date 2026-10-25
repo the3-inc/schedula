@@ -11,12 +11,12 @@ from web.build import build
 
 def test_pinned_css_is_included_in_the_public_asset_without_runtime_imports(tmp_path):
     product = build(tmp_path)
-    css = next((product / "assets").glob("landing.*.css")).read_text()
+    css = next((product / "assets").glob("landing.*.css")).read_text(encoding="utf-8")
     assert "--the3-accent: #087f83" in css
     assert "--accent: var(--the3-accent)" in css
     assert "@import" not in css
     for name in ("demo/index.html", "docs/index.html"):
-        html = (product / name).read_text()
+        html = (product / name).read_text(encoding="utf-8")
         assert 'data-theme="light"' in html
         assert "github.com/the3-inc/landing-page/releases/download/" not in html
 
@@ -33,9 +33,9 @@ def test_modified_vendor_file_is_rejected(tmp_path, name):
 def test_lock_cannot_read_paths_outside_the_preset_directory(tmp_path):
     shutil.copytree(DIRECTORY, tmp_path / "preset")
     target = tmp_path / "preset" / "preset.lock.json"
-    lock = json.loads(target.read_text())
+    lock = json.loads(target.read_text(encoding="utf-8"))
     lock["files"]["../outside"] = "0" * 64
-    target.write_text(json.dumps(lock))
+    target.write_text(json.dumps(lock), encoding="utf-8")
     with pytest.raises(ValueError, match="固定情報"):
         brand_css(tmp_path / "preset")
 
@@ -58,7 +58,7 @@ def test_local_server_serves_the_fixed_css_imports(http_server):
     for name in ("base.css", "tokens.css"):
         status, media, content = get(http_server, f"/demo/brand-preset/{name}")
         assert status == 200 and media.startswith("text/css")
-        assert content == (DIRECTORY / name).read_text()
+        assert content == (DIRECTORY / name).read_text(encoding="utf-8")
 
 
 def test_pinned_bytes_survive_git_crlf_checkout(tmp_path):
