@@ -95,6 +95,13 @@ async function main() {
       for (const width of [320, 390, 1440]) {
         await page.setViewportSize({width, height: 900});
         assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${colorScheme}: ${path} / ${width}`);
+        if (path === "/") {
+          for (const section of await page.locator(".section").all()) {
+            const padding = await section.evaluate(element => ({top: parseFloat(getComputedStyle(element).paddingTop), bottom: parseFloat(getComputedStyle(element).paddingBottom)}));
+            assert.equal(padding.top, width > 760 ? 100 : 60);
+            assert.equal(padding.bottom, width > 760 ? 100 : 60);
+          }
+        }
       }
     }
   }

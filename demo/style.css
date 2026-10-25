@@ -79,7 +79,7 @@ li { overflow-wrap: anywhere; }
 .feature-changed { outline: 2px solid var(--accent); outline-offset: -3px; }
 .feature-people { display: block; letter-spacing: 2px; }
 #feature-output h3 { font-size: 17px; }
-.feature-shortage-locations { padding-left: 20px; color: #802d17; }
+.feature-shortage-locations { padding-left: 20px; color: var(--ink); }
 #feature-demo .layout { gap: 0; grid-template-columns: 300px minmax(0, 1fr); align-items: start; }
 .feature-sidebar { padding: 8px 28px 0 0; }
 .feature-sidebar h2 { font-size: 22px; margin: 8px 0 12px; }

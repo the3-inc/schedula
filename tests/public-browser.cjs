@@ -73,6 +73,23 @@ async function checkFocusContrast(page, selector) {
     await page.getByRole("button", {name: "再計算", exact: true}).click();
     await page.locator("#feature-status").filter({hasText: "PARTIAL"}).waitFor({timeout: 45000});
     assert.match(await page.locator("#feature-output").innerText(), /60人分/);
+    for (const colorScheme of ["light", "dark"]) {
+      await page.emulateMedia({colorScheme});
+      const contrast = await page.locator(".feature-shortage-locations").evaluate(element => {
+        const luminance = color => {
+          const rgb = color.match(/[\d.]+/g).slice(0, 3).map(Number).map(value => {
+            value /= 255;
+            return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+          });
+          return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
+        };
+        const foreground = luminance(getComputedStyle(element).color);
+        const background = luminance(getComputedStyle(document.querySelector(".feature-result-panel")).backgroundColor);
+        return (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05);
+      });
+      assert(contrast >= 4.5, `${colorScheme}: shortage text contrast ${contrast}`);
+    }
+    await page.emulateMedia({colorScheme: "light"});
     assert.deepEqual(await page.evaluate(() => window.analyticsEvents), [["event", "demo_run_success", {
       lesson_id: "demand", operation: "solve", result_status: "PARTIAL",
     }]]);

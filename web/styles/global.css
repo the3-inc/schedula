@@ -1,6 +1,7 @@
 /* 製品Web全体の対応付け。ブランドの値と基本スタイルはbrand-presetを使う。 */
 :root { --paper: var(--the3-paper); --ink: var(--the3-ink); --muted: var(--the3-muted); --line: var(--the3-line); --accent: var(--the3-accent); }
 p { color: var(--muted); }
+.eyebrow { margin-bottom: 22px; }
 h2 { font-size: clamp(28px, 3vw, 40px); }
 h3 { font-size: 18px; }
 .brand { display: inline-flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 600; letter-spacing: -.04em; text-decoration: none; white-space: nowrap; }
