@@ -1,1 +1,1 @@
-tests/fixtures/contract-migration/*.json -text
+demo/brand-preset/** -text

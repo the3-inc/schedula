@@ -73,6 +73,11 @@ FILES.update(
         "/license.txt": (ROOT / "LICENSE", "text/plain; charset=utf-8"),
     }
 )
+for name in ("base", "tokens"):
+    FILES[f"/demo/brand-preset/{name}.css"] = (
+        ROOT / "demo" / "brand-preset" / f"{name}.css",
+        "text/css; charset=utf-8",
+    )
 for name in ("python-setup", "python-api", "io-contract-current", "distribution"):
     FILES[f"/docs/{name}.md"] = (
         ROOT / "docs" / f"{name}.md",
