@@ -61,6 +61,7 @@ Schema取得と、不正入力・データ障害の区別を含む。Windowsの�
 
 ## 初回セットアップ
 
+[公開リポジトリ](https://github.com/the3-inc/schedula)をcloneした後、
 リポジトリ直下で実行する。既存の `pyproject.toml` と `uv.lock` を使うので、
 `uv init` やパッケージの再追加は不要である。仮想環境の手動 activate も不要である。
 

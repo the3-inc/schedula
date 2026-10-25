@@ -108,5 +108,6 @@ Web・SDK の TypeScript 採用、Web フレームワーク、DB、認証、Dock
 CIは全体回帰・skip拒否・隔離wheel/sdist・公開型・base/cp-satと実Chromiumを確認します。
 固定規模の架空評価は時間・RSS・目的値・不足・証明範囲を保存し、実顧客の性能保証とは区別します。
 [移行・結合の記録](migrations/contract-0.15-integration.md)を参照してください。
-PyPI公開・GitHub Release・実顧客デプロイは未実施です。
+[shift-schedula 0.2.0](https://pypi.org/project/shift-schedula/0.2.0/)はPyPIで公開済みです。
+GitHub Release・実顧客デプロイの完了を示すものではありません。
 過去のZIPと契約追加時の文書は履歴として保持します。由来は[出典](sources.md)、用語は[用語集](../GLOSSARY.md)が正本です。

@@ -37,13 +37,21 @@ def test_landing_links_reach_served_content_and_contact(http_server):
         status, media_type, content = get(http_server, source)
         assert status == 200 and media_type == "text/html; charset=utf-8"
         page = PageLinks(content)
+        if source in {"/", "/docs.html"}:
+            assert "https://github.com/the3-inc/schedula" in page.links
+            assert "https://pypi.org/project/shift-schedula/0.2.0/" in page.links
         for link in page.links:
             target = urlsplit(urljoin(source, link))
             if target.scheme == "mailto":
-                assert unquote(target.path) == "omitsuhashi@the3-o.com"
+                assert unquote(target.path) == "omitsuhashi@the3.co.jp"
                 continue
             if target.scheme == "https" and target.netloc == "the3.co.jp":
                 assert link == "https://the3.co.jp/"
+                continue
+            if link in {
+                "https://github.com/the3-inc/schedula",
+                "https://pypi.org/project/shift-schedula/0.2.0/",
+            }:
                 continue
             assert not target.scheme and not target.netloc, link
             status, media_type, body = get(http_server, target.path)
