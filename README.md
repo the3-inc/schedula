@@ -9,7 +9,9 @@ JSON 契約0.15に対応し、独立した配置は最小費用流、
 担当時間・担当切替を含む配置と勤務計画は CP-SAT を使用します。
 
 独自コード・文書・デモは[MIT](LICENSE)で、自力導入・組み込み・商用利用ができます。
-現在のリポジトリは非公開で、PyPI公開は未実施です。参照資料はこの許諾の対象外です。
+ソースは[公開GitHubリポジトリ](https://github.com/the3-inc/schedula)から入手でき、
+配布版[shift-schedula 0.2.0](https://pypi.org/project/shift-schedula/0.2.0/)はPyPIで公開済みです。
+参照資料はこの許諾の対象外です。
 無料範囲、固定wheelの導入、依存表示、セキュリティ窓口と公開条件は[配布方針](docs/distribution.md)を参照してください。
 
 ## クリーンな環境から実行する
@@ -21,7 +23,7 @@ JSON 契約0.15に対応し、独立した配置は最小費用流、
 すでに clone 済みなら、リポジトリ直下で `uv python install` から実行してください。
 
 ```sh
-git clone https://github.com/omitsuhashi/schedula.git
+git clone https://github.com/the3-inc/schedula.git
 cd schedula
 uv python install
 uv sync --locked
@@ -54,7 +56,7 @@ uv run --locked python -m shift_schedula schema response
 
 導入・個別開発の相談を主導線にした[ランディングページ](demo/landing.html)も、
 以下のサーバーで [http://127.0.0.1:8765/](http://127.0.0.1:8765/) から確認できます。
-既存デモ・ドキュメント案内へ移動でき、問い合わせは `omitsuhashi@the3-o.com` 宛ての
+既存デモ・ドキュメント案内へ移動でき、問い合わせは `omitsuhashi@the3.co.jp` 宛ての
 メール作成を開きます。受付フォームやメール送信処理は持ちません。
 このサーバーはローカル確認専用です。インターネットへの公開は行いません。
 公開時の配置と確認項目は[LPの配信手順](docs/landing-page.md)を参照してください。
