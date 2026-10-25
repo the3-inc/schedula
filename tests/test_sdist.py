@@ -38,6 +38,7 @@ def test_sdist_builds_and_runs_without_original_checkout(tmp_path):
             "demo/server.py",
             "demo/app.js",
             "uv.lock",
+            ".nvmrc",
             "docs/distribution.md",
             "GLOSSARY.md",
             "MANIFEST.in",

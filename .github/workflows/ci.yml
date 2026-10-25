@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
-          version: "0.12.23"
+          version: "0.13.5"
           enable-cache: true
       - run: uv sync --locked
       - name: Validate Ruff hooks and CI selection
@@ -51,7 +51,7 @@ jobs:
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         if: needs.changes.outputs.python == 'true'
         with:
-          version: "0.12.23"
+          version: "0.13.5"
           enable-cache: true
       - name: Sync dependencies
         if: needs.changes.outputs.python == 'true'
@@ -76,7 +76,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
-          version: "0.12.23"
+          version: "0.13.5"
           enable-cache: true
       - run: uv sync --locked
       - name: Validate Python tests outside distribution
@@ -97,7 +97,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
-          version: "0.12.23"
+          version: "0.13.5"
           enable-cache: true
       - run: uv sync --locked
       - name: Validate rebuilt distributions and isolated installation
@@ -118,9 +118,12 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
-          version: "0.12.23"
+          version: "0.13.5"
           enable-cache: true
       - run: uv sync --locked
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
       - name: Install browser verification tools
         run: |
           npm install --prefix "$RUNNER_TEMP/playground-check" --no-save --package-lock=false playwright@1.62.1
@@ -144,7 +147,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
-          version: "0.12.23"
+          version: "0.13.5"
       - name: Verify the Linux Lambda container without AWS
         run: |
           uv build --wheel
