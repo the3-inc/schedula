@@ -8,6 +8,8 @@ recursive-include demo/brand-preset *.json *.md
 recursive-include scripts *.py
 include scripts/deploy
 recursive-include docs *.md *.html *.json *.py
+# 画像・ローカルQA記録に依存するデザイン検討資料はリポジトリで保守する。
+exclude docs/designs/demo-usability.md
 prune docs/reference
 prune docs/evaluations/results
 global-exclude __pycache__ *.py[cod] .DS_Store

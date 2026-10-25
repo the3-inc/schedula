@@ -2,7 +2,10 @@ const assert = require("node:assert/strict");
 const {readFileSync, writeFileSync} = require("node:fs");
 require("./feature-state.cjs");
 const lessons = JSON.parse(readFileSync("examples/playground/lessons.json", "utf8"));
-const ready = page => page.waitForFunction(() => feature?.current && !document.getElementById("feature-controls").disabled);
+const ready = page => page.waitForFunction(() => feature?.current && !document.getElementById("feature-controls").disabled).catch(async error => {
+  error.message += `\n${await page.url()}\n${await page.locator("#feature-status").textContent()}`;
+  throw error;
+});
 module.exports = async (browser, url, report) => {
   const page = await browser.newPage({viewport: {width: 1440, height: 1000}, timezoneId: "UTC"});
   const errors = [];
@@ -10,9 +13,23 @@ module.exports = async (browser, url, report) => {
   let requests = 0;
   page.on("request", request => { if (request.url().endsWith("/solve-json")) requests++; });
   await page.goto(url);
+  await ready(page);
+  assert.equal(await page.locator("#feature-number").inputValue(), "2");
+  assert.equal(await page.locator("#feature-list").isVisible(), false);
+  assert(await page.locator("#feature-try").isVisible());
+  const initialRequests = requests;
+  await page.getByRole("button", {name: "3人で試す", exact: true}).click();
+  await ready(page);
+  assert.equal(requests, initialRequests + 1);
+  assert.equal(await page.locator("#feature-number").inputValue(), "3");
+  assert.match(await page.locator(".feature-coverage").innerText(), /変更 · 初期は配置2 \/ 必要2人/);
+  await page.locator("#feature-restore").click();
+  await ready(page);
+  assert.equal(requests, initialRequests + 1);
+  await page.goto(`${url}#feature-list`);
   await page.locator("#feature-list .feature-cards").first().waitFor();
   assert.equal(await page.locator("#feature-list .feature-cards li").count(), 44);
-  assert.equal(requests, 0);
+  assert.equal(requests, initialRequests + 1);
   assert.equal(await page.locator("#editor").isVisible(), false);
   for (const lesson of lessons.filter(item => item.operation === "solve" && !["basic","conditions","days","patterns"].includes(item.module))) {
     await page.goto(`${url}#${lesson.id}`);
@@ -22,6 +39,7 @@ module.exports = async (browser, url, report) => {
       if (step.id !== "initial") {
         if (step.restore && !Object.keys(step.changes).length) await page.locator("#feature-restore").click();
         else {
+          if (!await page.locator(".feature-more").evaluate(element => element.open)) await page.locator(".feature-more > summary").click();
           await page.locator(`[data-step="${step.id}"]`).click();
           assert.equal(await page.evaluate(() => feature.current), null);
           assert.match(await page.locator("#feature-status").innerText(), /未計算/);
@@ -47,7 +65,9 @@ module.exports = async (browser, url, report) => {
         assert.equal(await page.evaluate(() => Math.max(...consecutiveRuns(feature.current).map(item => item.maximum))), step.expected.max_consecutive_days);
       }
       const summary = page.getByRole("region", {name: "変更と結果の要点"});
-      assert.match(await summary.innerText(), new RegExp(`現在\\s*${step.expected.total_person_minutes}人分`));
+      if (["demand", "consecutive_days"].includes(lesson.id) && ["initial", "restored"].includes(step.id))
+        assert.match(await summary.innerText(), /初期条件の計算結果 · 不足0人分/);
+      else assert.match(await summary.innerText(), new RegExp(`現在\\s*${step.expected.total_person_minutes}人分`));
       const proof = page.locator(".feature-proof");
       assert.equal(await proof.evaluate(element => element.open), false);
       await proof.locator("summary").click();

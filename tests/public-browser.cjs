@@ -46,6 +46,18 @@ async function checkFocusContrast(page, selector) {
     page.on("pageerror", error => failures.push(error.message));
     page.on("request", request => requests.push(request.url()));
     await page.goto(base + "demo/");
+    await page.locator("#feature-status").filter({hasText: "OPTIMAL"}).waitFor({timeout: 45000});
+    assert.deepEqual(await page.evaluate(() => window.analyticsEvents), []);
+    assert.equal(await page.locator(".feature-summary").count(), 0);
+    await page.getByRole("button", {name: "3人で試す", exact: true}).click();
+    await page.locator("#feature-status").filter({hasText: "OPTIMAL"}).waitFor({timeout: 45000});
+    assert.equal(await page.locator("#feature-number").inputValue(), "3");
+    assert.match(await page.locator(".feature-coverage").innerText(), /変更 · 初期は配置2 \/ 必要2人/);
+    assert.deepEqual(await page.evaluate(() => window.analyticsEvents), [["event", "demo_run_success", {
+      lesson_id: "demand", operation: "solve", result_status: "OPTIMAL",
+    }]]);
+    await page.evaluate(() => { window.analyticsEvents = []; });
+    await page.goto(base + "demo/#feature-list");
     await page.getByRole("link", {name: "必要人数に合わせる", exact: true}).waitFor();
     assert.equal(await page.locator("#feature-list a").count(), 3);
     for (const hash of ["json", "large", "records", "combined"]) {
@@ -82,9 +94,15 @@ async function checkFocusContrast(page, selector) {
     assert.deepEqual(await page.evaluate(() => window.analyticsEvents), [["event", "demo_run_success", {
       lesson_id: "verify", operation: "verify", result_status: "VALID",
     }]]);
+    await page.emulateMedia({reducedMotion: "reduce"});
     for (const width of [320, 390, 1440]) {
       await page.setViewportSize({width, height: 900});
       assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `overflow at ${width}`);
+      if (width < 700) {
+        await page.getByRole("button", {name: "結果を見る", exact: true}).click();
+        assert(await page.locator("#feature-status").evaluate(element => element === document.activeElement));
+        assert(await page.locator("#feature-result").evaluate(element => element.getBoundingClientRect().top < 200));
+      }
     }
     await page.goto(base + "docs/");
     await page.getByRole("link", {name: "公開APIとエラー処理（Markdown） ↗"}).waitFor();

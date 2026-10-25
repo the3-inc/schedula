@@ -17,42 +17,46 @@
 </head>
 <body>
 <a class="skip-link" href="#main">本文へ移動</a>
-<header class="site-header">
+<header class="site-header demo-header">
   <div class="brand-family"><a class="brand" href="/" aria-label="shift-schedula ホーム"><span class="brand-mark" aria-hidden="true">s.</span>shift-schedula</a><a class="company-link" href="https://the3.co.jp/">the3合同会社の製品</a></div>
   <nav aria-label="メインナビゲーション"><a href="/demo/" aria-current="page">デモ</a><a href="/docs.html">ドキュメント</a><a class="button small" href="/#contact">導入を相談する <span aria-hidden="true">↗</span></a></nav>
 </header>
 <main id="main" class="wrap demo-main">
   <div class="demo-heading">
-    <p class="eyebrow">TRY THE FEATURES / 架空データ</p>
-    <h1>担当配置と勤務計画の機能を試す</h1>
-    <p>機能を選び、条件を一種類変えて、結果の変化を確かめます。</p>
-    <nav class="demo-nav" aria-label="デモの移動"><a href="#">機能一覧</a><a href="#demand">必要人数</a><a href="#consecutive_days">連続勤務日数</a><a href="#shift_count_balance">夜勤回数</a><a href="#verify">手修正検証</a></nav>
-    <p class="note">移動・復元すると編集中の条件と結果は失われます。固定日付・Asia/Tokyoの教材です。</p>
+    <h1><span>条件を変えて、</span><span>配置の違いを見る</span></h1>
+    <p>架空データで試せます。条件を変える → 計算する → 初期結果と比べる。</p>
+    <nav class="demo-nav" aria-label="デモの移動"><a href="#demand">必要人数</a><a href="#consecutive_days">連勤上限</a><a href="#verify">手修正の検証</a><a href="#feature-list">すべての機能</a></nav>
   </div>
-  <section id="feature-list" aria-label="機能一覧"></section>
+  <section id="feature-list" hidden aria-label="機能一覧"></section>
   <section id="feature-demo" hidden aria-labelledby="feature-title">
-    <h2 id="feature-title" tabindex="-1"></h2>
-    <p id="feature-intro"></p>
     <div class="layout">
-      <div>
+      <div class="feature-sidebar">
+        <p id="feature-context" class="note"></p>
+        <h2 id="feature-title" tabindex="-1"></h2>
+        <p id="feature-intro"></p>
         <form id="feature-form">
           <fieldset id="feature-controls">
-            <legend>この機能の条件</legend>
+            <legend class="sr-only">この機能の条件</legend>
             <div id="feature-fields"></div>
-            <div id="feature-guide" class="guide"></div>
+            <p id="feature-first-guide" class="feature-first-guide"></p>
             <div class="actions">
+              <button id="feature-try" class="primary" type="button" hidden></button>
               <button id="feature-run" class="primary" type="submit">再計算</button>
               <button id="feature-restore" type="button">初期条件へ戻す</button>
             </div>
+            <button id="feature-view-result" type="button">結果を見る</button>
+            <details class="feature-more"><summary>ほかの試し方</summary><div id="feature-guide"></div></details>
           </fieldset>
         </form>
         <details><summary>この例の前提・目的順序</summary><div id="feature-premises"></div></details>
+        <p class="note">教材の切替・復元で編集はリセットされます。</p>
       </div>
-      <div>
+      <div class="feature-result-panel">
         <section id="feature-result" aria-busy="false" aria-label="機能の結果">
-          <p id="feature-status" role="status" aria-live="polite"></p>
+          <p id="feature-status" tabindex="-1" role="status" aria-live="polite"></p>
           <div id="feature-output"></div>
         </section>
+        <div class="feature-next"><a href="/docs.html">組み込み方法を見る</a><a href="/#contact">自社の条件を相談する</a></div>
       </div>
     </div>
   </section>

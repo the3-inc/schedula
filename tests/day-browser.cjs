@@ -6,7 +6,7 @@ module.exports=async(browser,url,report)=>{
   page.on("pageerror",e=>errors.push(e.message));
   const ready=()=>page.waitForFunction(()=>feature?.current&&!document.getElementById("feature-controls").disabled);
   for(const lesson of lessons){
-    await page.goto(url);await page.locator(`#feature-list a[href="#${lesson.id}"]`).click();await ready();
+    await page.goto(`${url}#feature-list`);await page.locator(`#feature-list a[href="#${lesson.id}"]`).click();await ready();
     assert.equal(await page.locator("#feature-intro").innerText(),lesson.intro);
     await page.getByText("この例の前提・目的順序",{exact:true}).click();
     for(const premise of lesson.premises)assert.ok((await page.locator("#feature-premises").innerText()).includes(premise));
@@ -15,7 +15,8 @@ module.exports=async(browser,url,report)=>{
     for(const step of lesson.steps){
       if(step.id!=="initial"){
         if(step.id==="restored")await page.locator("#feature-restore").click();
-        else{await page.locator(`[data-step="${step.id}"]`).click();assert.equal(await page.evaluate(()=>feature.current),null);assert.match(await page.locator("#feature-status").innerText(),/未計算/);await page.locator("#feature-run").click();}
+        else{if (!await page.locator(".feature-more").evaluate(element => element.open)) await page.locator(".feature-more > summary").click();
+          await page.locator(`[data-step="${step.id}"]`).click();assert.equal(await page.evaluate(()=>feature.current),null);assert.match(await page.locator("#feature-status").innerText(),/未計算/);await page.locator("#feature-run").click();}
         await ready();
       }
       const pair=await page.evaluate(()=>structuredClone(feature.current));

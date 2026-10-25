@@ -26,6 +26,7 @@ module.exports = async (page, url, report) => {
     if (step.id !== "initial") {
       if (step.restore) await page.locator("#feature-restore").click();
       else {
+        if (!await page.locator(".feature-more").evaluate(element => element.open)) await page.locator(".feature-more > summary").click();
         await page.locator(`[data-step="${step.id}"]`).click();
         assert.equal(await page.evaluate(() => feature.current), null);
         assert.match(await page.locator("#feature-status").innerText(), /未検証/);
@@ -38,11 +39,12 @@ module.exports = async (page, url, report) => {
     assert.equal(pair.response.shortage_summary?.total_person_minutes ?? null, step.expected.total_person_minutes);
     assert.equal(Object.hasOwn(pair.response, "solver"), false);
     assert.equal(Object.hasOwn(pair.response, "solution"), false);
-    assert.match(await page.locator("#feature-output").innerText(), /最適性：認定しない.*不足最小性：認定しない/);
+    assert.match(await page.locator("#feature-output").textContent(), /最適性：認定しない.*不足最小性：認定しない/);
     if (step.id === "invalid") {
-      assert.match(await page.locator("#feature-output").innerText(), /DOUBLE_ASSIGNMENT.*\/assignments\/1/);
-      const row = page.locator("#feature-output tbody tr").filter({has: page.getByRole("rowheader", {name: "hall", exact: true})});
-      assert.match(await row.innerText(), /Bob.*\/assignments\/1.*DOUBLE_ASSIGNMENT/);
+      assert.match(await page.locator("#feature-output").textContent(), /DOUBLE_ASSIGNMENT/);
+      const row = page.locator("#feature-output tbody tr").filter({has: page.getByRole("rowheader", {name: "ホール", exact: true})});
+      assert.equal(await row.getAttribute("data-json-pointer"), "/assignments/1");
+      assert.match(await row.innerText(), /Bob.*二重配置/);
     }
     if (step.restore) assert.deepEqual(pair, initial);
     report.interactions.push({lesson: "verify", step: step.id, status: pair.response.status, verification: pair.response.verification});
@@ -103,6 +105,6 @@ module.exports = async (page, url, report) => {
   report.feature_measurements ||= [];
   report.feature_measurements.push(...await page.evaluate(() => featureMeasurements.splice(0)));
   page.off("request", count);
-  await page.goto(url);
+  await page.goto(`${url}#feature-list`);
   await page.locator("#feature-list .feature-cards").first().waitFor();
 };
