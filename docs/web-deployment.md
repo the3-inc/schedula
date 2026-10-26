@@ -170,3 +170,9 @@ Playwrightの準備は既存のCIブラウザー検証と同じ。通常開発�
 利用者が明示的に再計算・再検証し、応答検査後の独立検証が成功した場合だけ`demo_run_success`を送る。初期計算・教材切替・初期値復元時の自動計算は数えない。`PARTIAL`も有効な結果として操作成功に含め、`result_status`で完全充足とは区別する。入力本文・実行ID・結果本文は送信しない。
 
 GA4プロパティの作成、拡張計測の個別設定、キーイベント・カスタムディメンション・内部アクセス除外、問い合わせ受付、同意設定と受入確認は[会社側の計測手順](https://github.com/the3-inc/landing-page/blob/main/docs/analytics.md)を正本とする。hardenedではinfraのCSP変更を先に適用する。測定IDの設定だけで本番受信確認済みとはしない。
+
+## 公開ロールと信頼する workflow
+
+公開ロールは `schedula-web-deploy`。タグ・手動起動の入口は維持し、認証するコードは main の `publish-demo.yml` に固定します。AWS の信頼条件は repository の固定 ID、production、再利用 workflow の job_workflow_ref を照合します。`.github/oidc-subject.json` は移行時に管理者が GitHub へ反映します。
+
+旧ロールからの切替は infra の [IAM 移行手順](https://github.com/the3-inc/infra/blob/main/docs/iam-migration.md)に従い、AWS_ROLE_ARN・subject template・workflow を合わせます。旧版への切り戻しは、現在の main の公開入口に既存タグを指定してください。IAM の管理は infra の管理者用 foundation が担当します。
