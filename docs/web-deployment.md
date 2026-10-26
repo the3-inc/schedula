@@ -173,6 +173,8 @@ GA4プロパティの作成、拡張計測の個別設定、キーイベント�
 
 ## 公開ロールと信頼する workflow
 
-公開ロールは `schedula-web-deploy`。タグ・手動起動の入口は維持し、認証するコードは main の `publish-demo.yml` に固定します。AWS の信頼条件は repository の固定 ID、production、再利用 workflow の job_workflow_ref を照合します。`.github/oidc-subject.json` は移行時に管理者が GitHub へ反映します。
+公開ロールは `schedula-web-deploy`。タグ・手動起動の入口は維持し、認証するコードは main の `publish-demo.yml` に固定します。AWS は既定の sub（repository の固定 ID と production）と、独立した `token.actions.githubusercontent.com:job_workflow_ref` 条件で再利用 workflow を照合します。`.github/oidc-subject.json` は既定の subject を使う設定です。移行時に管理者が反映し、リポジトリ全体で job_workflow_ref を必須化しません。
 
 旧ロールからの切替は infra の [IAM 移行手順](https://github.com/the3-inc/infra/blob/main/docs/iam-migration.md)に従い、AWS_ROLE_ARN・subject template・workflow を合わせます。旧版への切り戻しは、現在の main の公開入口に既存タグを指定してください。IAM の管理は infra の管理者用 foundation が担当します。
+
+PyPI の `publish.yml` は通常ジョブのまま Trusted Publishing を使います。既定の subject を維持するため、既存の workflow 名と `pypi` Environment を使う Trusted Publisher 登録は変更しません。デモ用の独立した AWS 条件は [AWS の GitHub OIDC 条件キー](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_iam-condition-keys.html)を参照してください。
