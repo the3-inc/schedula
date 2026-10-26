@@ -61,3 +61,19 @@ def test_web_release_requires_main_and_latest_success(monkeypatch):
     )
     with pytest.raises(ValueError, match="main CI"):
         check_web_release.check("web-v1.0.0", "the3-inc/schedula")
+
+
+@pytest.mark.repository
+def test_tag_callers_use_only_the_trusted_main_deployment():
+    import json
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    entry = (root / ".github/workflows/deploy-demo.yml").read_text()
+    assert "uses: the3-inc/schedula/.github/workflows/publish-demo.yml@main" in entry
+    assert json.loads((root / ".github/oidc-subject.json").read_text()) == {
+        "use_default": True,
+    }
+    publish = (root / ".github/workflows/publish-demo.yml").read_text()
+    assert "role/schedula-web-deploy" in publish
+    assert "role/the3-schedula-demo-production-deploy" not in publish
