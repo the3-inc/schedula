@@ -32,6 +32,8 @@ def read_vendor(directory=DESTINATION):
     entries = list(directory.rglob("*"))
     if (
         any(path.is_symlink() for path in entries)
+        or {path.relative_to(directory).as_posix() for path in entries}
+        != FILES | {"provenance.json", "assets"}
         or {path.relative_to(directory).as_posix() for path in entries if path.is_file()}
         != FILES | {"provenance.json"}
         or {path.relative_to(directory).as_posix() for path in entries if path.is_dir()}

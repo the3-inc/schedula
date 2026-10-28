@@ -3,6 +3,7 @@
 import hashlib
 import io
 import json
+import os
 import tarfile
 
 import pytest
@@ -102,7 +103,9 @@ def test_failed_directory_swap_restores_the_previous_version(tmp_path, monkeypat
     assert (destination / "tokens.css").read_bytes() == previous
 
 
-@pytest.mark.parametrize("change", ["unmanaged", "modified", "symlink"])
+@pytest.mark.parametrize(
+    "change", ["unmanaged", "modified", "symlink"] + (["fifo"] if hasattr(os, "mkfifo") else [])
+)
 def test_existing_local_changes_are_preserved(tmp_path, change):
     archive, release, checksum = distribution(tmp_path)
     destination = tmp_path / "vendor"
@@ -113,12 +116,17 @@ def test_existing_local_changes_are_preserved(tmp_path, change):
         target.write_text("keep")
     elif change == "modified":
         target.write_text("keep")
+    elif change == "fifo":
+        target = destination / "custom.pipe"
+        os.mkfifo(target)
     else:
         target.unlink()
         target.symlink_to(DESTINATION / "tokens.css")
     with pytest.raises(ValueError):
         install(archive, release, checksum, destination)
-    if change == "symlink":
+    if change == "fifo":
+        assert target.exists() and not target.is_file()
+    elif change == "symlink":
         assert target.is_symlink()
     else:
         assert target.read_text() == "keep"
