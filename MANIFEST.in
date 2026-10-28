@@ -14,5 +14,6 @@ prune docs/evaluations/results
 global-exclude __pycache__ *.py[cod] .DS_Store
 
 recursive-include web *.py *.css Dockerfile
-recursive-include web/vendor/brand-preset *.json *.md
 include infra/README.md
+
+recursive-include web/vendor/the3-brand *

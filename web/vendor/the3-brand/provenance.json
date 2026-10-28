@@ -1,0 +1,17 @@
+{
+  "repository": "the3-inc/landing-page",
+  "tag": "design-v1.0.0",
+  "version": "1.0.0",
+  "source_commit": "0a7122f8488a610a6c31fbe1350972b18530eb95",
+  "source_state": "committed",
+  "files": {
+    "CHANGELOG.md": "1c104b018ced29b2d395dd7cf8ede05433c428fcffc19d5b36432b4e4f2f8b63",
+    "LICENSE": "9961a5ede63325cb33e28bc78119e1871cfad44976df518e1cec5709b72a6e5a",
+    "README.md": "a7a6c956d3d6af56eeffa3abd7502cd5a0f7f3badcdd143dbd789298c8cb891c",
+    "assets/the3-symbol.svg": "06a28dcb9c9fe6e30157149eed50d18a07d372d4e38ce312ea084603cb4d5cbc",
+    "base.css": "4725438a92dd710481dc5f654c710abda611479e47f8b40c32db726d4453f494",
+    "package.json": "50d59579ef03ba8239d2044ca507da6765ceb340623053a67f9be87c4bf17a79",
+    "tokens.css": "6a660e826da3be2abf620a348a198670631512d6f2730249d25995ef0fb36464"
+  },
+  "archive_sha256": "59a862eac34c2c58f5436c9e0411e98ae5743f290a9541a75c1684fd05f95d25"
+}

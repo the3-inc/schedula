@@ -60,6 +60,10 @@ def build(destination, *, ga4_id=None):
     preset_url = BASE + "assets/" + preset_name
     html = html.replace("/brand-preset/base.css", preset_url)
     guide = guide.replace("/brand-preset/base.css", preset_url)
+    logo = ROOT / "web/vendor/the3-brand/assets/the3-symbol.svg"
+    logo_bytes = logo.read_bytes()
+    logo_name = f"the3-symbol.{hashlib.sha256(logo_bytes).hexdigest()[:16]}.svg"
+    (product / "assets" / logo_name).write_bytes(logo_bytes)
     analytics_src = None
     # 製品全体のCSSとデモ資産を同じ内容hash付き配信へまとめる。
     paths = [ROOT / "web" / "styles" / "global.css", *(ROOT / "demo").iterdir()]

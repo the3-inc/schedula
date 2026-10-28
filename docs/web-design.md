@@ -7,7 +7,7 @@ LP・デモ・技術案内の遷移で背景・書体・リンク・主要操作
 
 ## 配置と依存
 
-- `web/vendor/brand-preset/`: landing-pageの`@the3/brand-preset`を版固定して一式取り込む、全Web共通の配置。
+- `web/vendor/the3-brand/`: landing-pageの`@the3/brand`を版固定して一式取り込む、全Web共通の配置。
 - `web/styles/global.css`: 製品名・ナビゲーション・技術案内などの製品共通構成と、共通トークンへの対応付け。
 - `web/styles/landing.css`: ローカル製品LPの図解・紹介セクションだけ。
 - `demo/style.css`: 操作パネル・入力サイズ・結果表・業務上の意味を持つ色だけ。
@@ -24,13 +24,10 @@ LPだけが`/styles/landing.css`、デモだけが`/demo/style.css`を追加し�
 
 ## 配布版の固定
 
-[brand-preset-v0.2.0](https://github.com/the3-inc/landing-page/releases/tag/brand-preset-v0.2.0)の公開アーカイブと`SHA256SUMS`を取得し、配布元の取り込みツールで検証・展開しました。
-`preset.lock.json`でアーカイブと各ファイルのSHA-256を固定しています。
-
-アーカイブのSHA-256: `40cdf64dd820572bad6b95fe8d18ce10e474c2dbeae390e998be3495d48fe419`。
-配布タグは会社側mainの`b937ee05cd3b0bbe73c39cf68f1d55a3072a510f`を指し、PRとmain CI、配布workflowの成功後に取得したものです。
+配布元の`design-v*`アーカイブを検証し、`provenance.json`で版・元コミット・アーカイブと各ファイルのSHA-256を固定します。
+初回PRの検証候補は正式Release発行後に差し替えます。現在の固定値は同ファイルを参照してください。
 固定したファイルは`.gitattributes`で改行変換を無効にし、通常のCI・ビルドはコミット済みのCSSだけを使います。
-取得・更新は[配布元の導入手順](https://github.com/the3-inc/landing-page/blob/main/docs/brand-preset-distribution.md)に従い、プリセット内を手編集しません。
+取得・更新は[共有デザインの利用と更新](design-package.md)に従い、プリセット内を手編集しません。
 `web/brand.py`が固定情報を検査し、公開ビルドは共通CSSを一つの内容hash付きアセットにまとめ、デモ・技術案内から共有します。
 `MANIFEST.in`でソース配布にも共通CSS・固定情報を含めます。Pythonライブラリのwheelには含めません。
 

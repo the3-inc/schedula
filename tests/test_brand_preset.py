@@ -38,7 +38,7 @@ def test_modified_vendor_file_is_rejected(tmp_path, name):
 
 def test_lock_cannot_read_paths_outside_the_preset_directory(tmp_path):
     shutil.copytree(DIRECTORY, tmp_path / "preset")
-    target = tmp_path / "preset" / "preset.lock.json"
+    target = tmp_path / "preset" / "provenance.json"
     lock = json.loads(target.read_text(encoding="utf-8"))
     lock["files"]["../outside"] = "0" * 64
     target.write_text(json.dumps(lock), encoding="utf-8")
@@ -65,6 +65,10 @@ def test_local_server_serves_the_fixed_css_imports(http_server):
         status, media, content = get(http_server, f"/brand-preset/{name}")
         assert status == 200 and media.startswith("text/css")
         assert content == (DIRECTORY / name).read_text(encoding="utf-8")
+    status, media, content = get(http_server, "/brand-preset/assets/the3-symbol.svg")
+    assert status == 200 and media == "image/svg+xml"
+    assert content == (DIRECTORY / "assets/the3-symbol.svg").read_text(encoding="utf-8")
+    assert get(http_server, "/brand-preset/provenance.json")[0] == 404
 
 
 def test_pinned_bytes_survive_git_crlf_checkout(tmp_path):
@@ -99,4 +103,4 @@ def test_every_product_page_uses_global_css_without_the_landing_styles(http_serv
         assert content == (DIRECTORY.parents[1] / "styles" / f"{name}.css").read_bytes().decode(
             "utf-8"
         )
-    assert get(http_server, "/web/vendor/brand-preset/preset.lock.json")[0] == 404
+    assert get(http_server, "/web/vendor/brand-preset/provenance.json")[0] == 404
