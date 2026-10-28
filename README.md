@@ -17,7 +17,7 @@ JSON 契約0.15に対応し、独立した配置は最小費用流、
 ## クリーンな環境から実行する
 
 [uv](https://docs.astral.sh/uv/getting-started/installation/) と Git を導入し、次を実行します。
-利用者向けの Python 要件は `>=3.14` です。開発環境は CPython 3.14.9 を
+利用者向けの Python 要件は `>=3.14` です。開発環境は CPython 3.14.10 を
 `.python-version` に固定し、依存版は `uv.lock` に記録しています。
 測定した対応環境と将来版の制限は[Pythonセットアップ](docs/python-setup.md)を参照してください。
 すでに clone 済みなら、リポジトリ直下で `uv python install` から実行してください。

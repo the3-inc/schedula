@@ -7,8 +7,8 @@ uv 自体の導入は [公式のインストール手順](https://docs.astral.sh
 
 ## Python と依存パッケージ
 
-2026-10-25 に、3.14 系の最新パッチ **CPython 3.14.9** へ更新した。
-[公式リリース](https://www.python.org/downloads/release/python-3149/)は証明書対応を含む
+2026-10-28 に、3.14 系の最新パッチ **CPython 3.14.10** へ更新した。
+[公式リリース](https://www.python.org/downloads/release/python-31410/)は証明書対応を含む
 セキュリティ修正版である。`.python-version` で開発・CI の版を固定する。
 配布の最低要件は `>=3.14` を維持し、利用者向けの許容範囲と開発用の固定版を分ける。
 通常の CPython 3.14 で通常依存の隔離導入を検証する。
@@ -16,14 +16,14 @@ uv 自体の導入は [公式のインストール手順](https://docs.astral.sh
 特に CP-SAT は対象 Python・OS の OR-Tools wheel が必要となる。
 新しい安定版が出たら通常依存で測定し、依存が未対応なら結果と制限を課題に記録する。
 
-uv は **0.13.5** を使用する。直接インストールした uv は `uv self update 0.13.5` で更新できる。
-[uv 0.13.5](https://github.com/astral-sh/uv/releases/tag/0.13.5) は、
+uv は **0.13.6** を使用する。直接インストールした uv は `uv self update 0.13.6` で更新できる。
+[uv 0.13.6](https://github.com/astral-sh/uv/releases/tag/0.13.6) は、
 証明書ストア修正済みの uv と、pip 26.2.2 を含む Python ビルドを利用する。
 旧版に固定された仮想環境は自動では移行しないため、更新後に `uv sync --locked` を実行する。
 公開デモの Lambda イメージも `web/Dockerfile` の digest を更新した。
-ただし AWS の最新イメージは Python 3.14.8 のため、コンテナー全体を 3.14.9 と同等とは扱わない。
-証明書対応として pip を 26.2.2、uv を 0.13.5 へ明示的に更新する。
-AWS が 3.14.9 を提供したら digest を再更新する。
+ただし AWS の最新イメージは Python 3.14.9 のため、コンテナー全体を 3.14.10 と同等とは扱わない。
+証明書対応として pip を 26.2.2、uv を 0.13.6 へ明示的に更新する。
+AWS が 3.14.10 を提供したら digest を再更新する。
 Git hook 用の間接依存 virtualenv も 21.14.13 に更新し、古い pip の再導入を防ぐ。
 更新前からある hook 環境では `uv run --locked pre-commit clean` を実行してから hook を再実行する。
 
@@ -121,7 +121,7 @@ hook を使わない場合は `uv run --locked ruff check .` と
 `uv run --locked ruff format --check .` で確認する。
 両方の経路で同じ Ruff 検証を繰り返す必要はない。
 
-CI も uv 0.13.5 と `.python-version` を使い、`uv sync --locked` で環境を構築する。
+CI も uv 0.13.6 と `.python-version` を使い、`uv sync --locked` で環境を構築する。
 Ruff hookとデプロイスクリプトの構文は毎回確認し、Python・配布・画面検証は並列ジョブで実行する。
 PRでは変更内容に応じてジョブを選び、mainへのpushでは全探索比較・両バックエンド比較・
 違反検出・依存不足を含む全検証を実行する。選択条件は[CIの検証範囲](ci.md)を参照する。

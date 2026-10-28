@@ -25,6 +25,9 @@ jobs:
           ref: main
           fetch-depth: 0
           persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version-file: .python-version
       - name: Validate tag, main ancestry and main CI before AWS authentication
         id: release
         env:
@@ -37,7 +40,7 @@ jobs:
           persist-credentials: false
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
-          version: '0.13.5'
+          version: '0.13.6'
       - run: |
           [[ "$PUBLIC_GA4_MEASUREMENT_ID" =~ ^G-[A-Z0-9]+$ ]] || { echo "::error::Set repository variable PUBLIC_GA4_MEASUREMENT_ID"; exit 1; }
           uv sync --locked
@@ -138,7 +141,7 @@ jobs:
           printf '%s\n' "commit=$RELEASE_SHA" "image=$ECR_REPOSITORY@$digest" "lambda_version=$version" "previous_lambda_version=$previous" >> "$GITHUB_STEP_SUMMARY"
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
-          version: '0.13.5'
+          version: '0.13.6'
       - name: Verify public pages and real computation
         run: |
           curl --fail --silent --show-error https://the3.co.jp/products/schedula/demo/ -o /dev/null
