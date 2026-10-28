@@ -4,7 +4,9 @@
 
 ## 現在の取り込み
 
-版・元コミット・タグ・SHA-256・各ファイルのhashは`web/vendor/the3-brand/provenance.json`に記録します。`source_state=working-tree`は未コミットのパッケージから作った未発行の検証用配布物です。正式Releaseの発行を意味しません。初版発行後に下記の手順で正式版へ更新します。
+[design-v1.0.0](https://github.com/the3-inc/landing-page/releases/tag/design-v1.0.0)の正式配布物を取得し、SHA256SUMSとGitHub assetのdigest、元コミット`78722c21c06db66b570a16d9dac846df84069e76`を検証して取り込みました。`source_state`は`committed`です。
+
+版・元コミット・タグ・SHA-256・各ファイルのhashは`web/vendor/the3-brand/provenance.json`に記録します。`source_state=working-tree`は未コミットのパッケージから作った未発行の検証用配布物です。正式Releaseの発行を意味しません。初回の検証候補から正式版へ更新済みです。以後の更新も下記の手順に従います。
 
 既存の`/brand-preset/base.css` URLを維持し、`base.css`が相対importする`tokens.css`も同じ場所から配信します。公開ビルドでは両CSSをまとめます。背景・本文・補足文・境界線・フォント・フォーカス・本文スキップを共有し、製品アクセント・フォーム・結果表・業務状態色は製品側が管理します。最新mainのテーマ追従とティール配色、共有クラス、画面改善を維持します。
 
