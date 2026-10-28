@@ -7,6 +7,6 @@ AWS定義と構築・更新手順はprivateの [infra](https://github.com/the3-i
 会社・製品間のSSM契約、登録フラグ、他リポジトリのTerraform実行は不要です。
 `schedula.the3.co.jp` のアプリ本体は別の公開対象で、今回のデモ構築には含めません。
 
-初回構築と公開先の登録はinfra側で完了させ、その後はこのリポジトリのmain CI成功 → `web-v*` タグpushだけで公開します。
+基盤構築と公開先の登録はinfra側で完了させます。新規Lambdaは503で準備中を返します。初回も通常更新も、このリポジトリのmain CI成功 → `web-v*` タグpushでデモ・技術文書・APIを公開します。infraはこのrepoのビルドやS3配置を実行しません。
 公開workflowは自分のS3 prefix・ECR・Lambdaのコードとlive aliasだけを更新し、Terraformや会社の公開workflowを実行しません。
 [公開構成と手順](../docs/web-deployment.md)を参照してください。

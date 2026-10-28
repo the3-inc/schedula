@@ -1,12 +1,12 @@
 # 共有デザインの利用と更新
 
-正本は`the3-inc/landing-page`の`packages/brand/`です。会社サイト・製品・別リポジトリで共有する通常のCSSとSVGを、`demo/vendor/the3-brand/`へ固定保存します。通常の開発・ビルド・閲覧では配布元へ接続せず、Node.jsも不要です。
+正本は`the3-inc/landing-page`の`packages/brand/`です。会社サイト・製品・別リポジトリで共有する通常のCSSとSVGを、`web/vendor/the3-brand/`へ固定保存します。通常の開発・ビルド・閲覧では配布元へ接続せず、Node.jsも不要です。
 
 ## 現在の取り込み
 
-版・元コミット・タグ・SHA-256・各ファイルのhashは`demo/vendor/the3-brand/provenance.json`に記録します。`source_state=working-tree`は未コミットのパッケージから作った未発行の検証用配布物です。正式Releaseの発行を意味しません。初版発行後に下記の手順で正式版へ更新します。
+版・元コミット・タグ・SHA-256・各ファイルのhashは`web/vendor/the3-brand/provenance.json`に記録します。`source_state=working-tree`は未コミットのパッケージから作った未発行の検証用配布物です。正式Releaseの発行を意味しません。初版発行後に下記の手順で正式版へ更新します。
 
-`tokens.css` → `base.css` → `landing.css` → デモ用`style.css`の順で読み込みます。背景・本文・補足文・境界線・フォント・フォーカス・本文スキップを共有し、製品アクセント・フォーム・結果表・業務状態色は製品側が管理します。`data-theme="light"`でライト固定にし、ダーク表示は全フォーム・表の検証後に導入します。
+既存の`/brand-preset/base.css` URLを維持し、`base.css`が相対importする`tokens.css`も同じ場所から配信します。公開ビルドでは両CSSをまとめます。背景・本文・補足文・境界線・フォント・フォーカス・本文スキップを共有し、製品アクセント・フォーム・結果表・業務状態色は製品側が管理します。最新mainのテーマ追従とティール配色、共有クラス、画面改善を維持します。
 
 会社ロゴはパッケージに含めてローカル・公開ビルドで配信可能にします。製品ロゴを会社ロゴへ置き換える変更は含めません。
 
@@ -41,3 +41,5 @@ node tests/public-browser.cjs
 ブラウザーテストのPlaywright設定は既存CIに従います。公開ビルドは共有CSS・SVGへも内容hashを付けて製品の`assets/`へ出力します。ソース配布にも固定ファイルと配布条件を含めます。Python wheelには引き続きエンジンだけを含めます。
 
 切り戻しは更新コミットを戻し、前の固定ファイル一式と`provenance.json`を復元します。パッケージは`UNLICENSED`であり、schedula自身のMITライセンスとは別です。配布条件はvendor内の`LICENSE`を参照してください。
+
+旧`brand-preset-v0.2.0`の固定配置から`design-v1.0.0`へ移行します。通常ビルド時の取得や認証は追加しません。

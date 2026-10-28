@@ -28,19 +28,17 @@ async function main() {
   page.on("pageerror", error => failures.push(error.message));
   page.on("response", response => { if (response.status() >= 400) failures.push(`${response.status()} ${response.url()}`); });
   await page.goto(`${url}/`);
-  await page.emulateMedia({colorScheme: "dark", reducedMotion: "reduce"});
   const landingStyle = await page.evaluate(() => ({background: getComputedStyle(document.body).backgroundColor, font: getComputedStyle(document.body).fontFamily}));
-  assert.equal(landingStyle.background, "rgb(250, 251, 249)");
-  assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior), "auto");
+  const accent = await page.locator(".site-header .button").evaluate(element => getComputedStyle(element).backgroundColor);
   await page.keyboard.press("Tab");
-  assert.equal(await page.locator(".the3-skip-link").evaluate(element => element === document.activeElement), true);
+  assert.equal(await page.locator(".skip-link").evaluate(element => element === document.activeElement), true);
   await page.keyboard.press("Enter");
   assert.equal(new URL(page.url()).hash, "#main");
   await page.getByRole("link", {name: "自社への導入を相談する"}).click();
   await page.locator("#contact").waitFor({state: "visible"});
   const contact = new URL(await page.getByRole("link", {name: "メールで相談する"}).getAttribute("href"));
   assert.equal(contact.protocol, "mailto:");
-  assert.equal(contact.pathname, "omitsuhashi@the3-o.com");
+  assert.equal(contact.pathname, "omitsuhashi@the3.co.jp");
   assert.ok(contact.searchParams.get("body").includes("ご相談内容"));
   assert.equal(await page.locator("form").count(), 0);
 
@@ -68,18 +66,55 @@ async function main() {
       if (path === "/demo/#demand") await page.waitForFunction(() => feature?.current && !featureController);
       if (path.startsWith("/demo/")) {
         assert.deepEqual(await page.evaluate(() => ({background: getComputedStyle(document.body).backgroundColor, font: getComputedStyle(document.body).fontFamily})), landingStyle);
-        if (path.includes("#")) assert.equal(await page.locator("#feature-run").evaluate(element => getComputedStyle(element).backgroundColor), "rgb(67, 91, 53)");
+        if (path.includes("#")) assert.equal(await page.locator("#feature-try").evaluate(element => getComputedStyle(element).backgroundColor), accent);
         await page.screenshot({path: `test-results/demo-${path.includes("#") ? "demand" : "list"}-${width}.png`, fullPage: true});
       }
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${path} / ${width}px`);
       if (path === "/") await page.screenshot({path: `test-results/landing-${width}.png`, fullPage: true});
     }
   }
+  for (const colorScheme of ["light", "dark"]) {
+    await page.emulateMedia({colorScheme});
+    let reference;
+    for (const path of ["/", "/demo/#demand", "/docs.html"]) {
+      await page.goto(url + path);
+      if (path.includes("#")) await page.waitForFunction(() => feature?.current && !featureController);
+      const style = await page.evaluate(() => {
+        const body = getComputedStyle(document.body), header = getComputedStyle(document.querySelector(".the3-site-header"));
+        const button = getComputedStyle(document.querySelector(".site-header .the3-button"));
+        const probe = document.body.appendChild(document.createElement("input"));
+        probe.type = "text";
+        probe.disabled = true;
+        const field = getComputedStyle(probe);
+        const control = {background: field.backgroundColor, ink: field.color, radius: field.borderRadius, minHeight: field.minHeight, opacity: field.opacity};
+        probe.remove();
+        return {background: body.backgroundColor, ink: body.color, font: body.fontFamily, lineHeight: body.lineHeight, headerBackground: header.backgroundColor, headerInk: header.color, buttonBackground: button.backgroundColor, buttonInk: button.color, radius: button.borderRadius, control};
+      });
+      reference ||= style;
+      assert.deepEqual(style, reference, `${colorScheme}: ${path}`);
+      for (const width of [320, 390, 1440]) {
+        await page.setViewportSize({width, height: 900});
+        assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${colorScheme}: ${path} / ${width}`);
+        if (path === "/") {
+          for (const section of await page.locator(".section").all()) {
+            const padding = await section.evaluate(element => ({top: parseFloat(getComputedStyle(element).paddingTop), bottom: parseFloat(getComputedStyle(element).paddingBottom)}));
+            assert.equal(padding.top, width > 760 ? 100 : 60);
+            assert.equal(padding.bottom, width > 760 ? 100 : 60);
+          }
+        }
+      }
+    }
+  }
+  await page.emulateMedia({colorScheme: "light"});
   await page.goto(`${url}/demo/`);
+  await page.waitForFunction(() => feature?.current && !featureController);
   await page.keyboard.press("Tab");
-  assert.equal(await page.locator(".the3-skip-link").evaluate(element => element === document.activeElement), true);
+  assert.equal(await page.locator(".skip-link").evaluate(element => element === document.activeElement), true);
   await page.keyboard.press("Enter");
   assert.equal(new URL(page.url()).hash, "#main");
+  await page.getByRole("link", {name: "連勤上限", exact: true}).click();
+  await page.waitForFunction(() => lesson?.id === "consecutive_days" && feature?.current && !featureController);
+  assert.equal(await page.locator("#feature-title").evaluate(element => element === document.activeElement), true);
   await page.getByRole("link", {name: "shift-schedula ホーム"}).click();
   assert.equal(new URL(page.url()).pathname, "/");
   const noScript = await browser.newContext({javaScriptEnabled: false, viewport: {width: 390, height: 844}});

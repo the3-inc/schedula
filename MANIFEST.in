@@ -1,5 +1,5 @@
 include README.md LICENSE THIRD_PARTY_NOTICES.md AGENTS.md GLOSSARY.md
-include pyproject.toml uv.lock .python-version .pre-commit-config.yaml .gitignore
+include pyproject.toml uv.lock .python-version .nvmrc .pre-commit-config.yaml .gitignore .gitattributes
 recursive-include src *.py *.pyi *.json py.typed
 recursive-include tests *.py *.cjs *.json
 recursive-include examples *.json *.py
@@ -7,11 +7,14 @@ recursive-include demo *.py *.html *.css *.js
 recursive-include scripts *.py
 include scripts/deploy
 recursive-include docs *.md *.html *.json *.py
+# 画像・ローカルQA記録に依存するデザイン検討資料はリポジトリで保守する。
+exclude docs/designs/demo-usability.md
 prune docs/reference
 prune docs/evaluations/results
 global-exclude __pycache__ *.py[cod] .DS_Store
 
-recursive-include web *.py Dockerfile
+recursive-include web *.py *.css Dockerfile
+recursive-include web/vendor/brand-preset *.json *.md
 include infra/README.md
 
-recursive-include demo/vendor/the3-brand *
+recursive-include web/vendor/the3-brand *

@@ -133,26 +133,17 @@ def test_unsafe_or_incomplete_archives_never_get_extracted(tmp_path, kind):
     assert not (tmp_path / "escaped").exists()
 
 
-def test_design_assets_are_hashed_and_copied_into_the_public_product(tmp_path):
-    product = build(tmp_path)
-    for name in ("tokens.css", "base.css"):
-        data = (DESTINATION / name).read_bytes()
-        checksum = hashlib.sha256(data).hexdigest()[:16]
-        filename = f"the3-{name.removesuffix('.css')}.{checksum}.css"
-        assert (product / "assets" / filename).read_bytes() == data
-        for page in ("demo/index.html", "docs/index.html"):
-            html = (product / page).read_text()
-            assert filename in html
-            assert "/vendor/" not in html
-            assert 'data-theme="light"' in html
-    assert len(list((product / "assets").glob("the3-the3-symbol.*.svg"))) == 1
-
-
-def test_local_server_exposes_only_design_public_assets():
+def test_local_and_public_css_use_the_same_fixed_package(tmp_path):
     from demo.server import FILES as served
+    from web.brand import brand_css
 
-    for name in ("tokens.css", "base.css", "assets/the3-symbol.svg"):
-        path, media = served[f"/demo/vendor/the3-brand/{name}"]
+    product = build(tmp_path)
+    css = brand_css()
+    checksum = hashlib.sha256(css.encode()).hexdigest()[:16]
+    assert (product / "assets" / f"brand.{checksum}.css").read_text() == css
+    assert len(list((product / "assets").glob("the3-symbol.*.svg"))) == 1
+    for name in ("tokens.css", "base.css"):
+        path, media = served[f"/brand-preset/{name}"]
         assert path.read_bytes() == (DESTINATION / name).read_bytes()
-        assert media.startswith("image/svg+xml" if name.endswith("svg") else "text/css")
+        assert media.startswith("text/css")
     assert not any("provenance" in url or "package.json" in url for url in served)

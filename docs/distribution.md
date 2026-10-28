@@ -11,7 +11,6 @@
 対象はschedulaの独自コード、実行Schema、独自文書、架空の例・評価入力、CLIと試用デモ。
 [来歴記録](sources.md)とGitの導入履歴では、参照ZIPのコード・テストを取り込まず、
 業務仕様から独自実装したことを記録している。これは参照原本の再配布許諾を確認したという意味ではない。
-`demo/vendor/the3-brand/`の共有CSS・会社ロゴは同梱の`LICENSE`（`UNLICENSED`）に従い、schedula本体のMIT許諾には含めない。共有素材を含むデモの第三者への再配布は、素材の権利者へ確認する。
 `docs/reference/` の原本・ZIP由来のSchemaと例・研究資料はMITの対象に含めない。
 無料配布物へ自動的に含めず、公開前にはGit履歴を含めた公開対象を確認する。
 
@@ -41,13 +40,15 @@ OR-ToolsはApache-2.0で、通常の実行依存として導入する。
 ## 固定版での導入
 
 配布名は `shift-schedula`、Python package は `shift_schedula`、CLI は
-`python -m shift_schedula` とする。GitHubのリポジトリ名は `omitsuhashi/schedula` を維持する。
+`python -m shift_schedula` とする。GitHubの公開リポジトリは [the3-inc/schedula](https://github.com/the3-inc/schedula)。
 既存の別作者の [schedula](https://pypi.org/project/schedula/) と同居できるよう、
 `schedula` 名の互換packageは同梱しない。JSON契約版、業務ID、既存Schemaの
 `urn:schedula:...` は保存済み入力との互換性のため維持する。
 
-現在はリポジトリが非公開で、PyPIには公開していない。
-アクセスできる利用者はcloneし、READMEの手順で `uv sync --locked` を実行する。
+ソースは公開GitHubリポジトリからcloneでき、READMEの手順で `uv sync --locked` を実行する。
+配布版 [shift-schedula 0.2.0](https://pypi.org/project/shift-schedula/0.2.0/)はPyPIで公開済み。
+[公開ワークフロー](https://github.com/the3-inc/schedula/actions/runs/38495947275)の成功と
+PyPIのwheel・sdistの掲載を2026-10-25に確認した。ソースのmainと公開済み配布版は更新時点が異なる。
 配布のPython要件は `>=3.14`。実測した対応は通常のCPython 3.14、CIのLinuxとmacOS ARM64。
 2026-10-07時点の最新安定版も3.14.8であり、新しい安定版・free-threaded・他実装は未検証。
 Windows x86_64は2026-10-07のCIでbase/extraのwheel導入・求解・独立検証・Schema取得・入力検証・spawnによる総期限/取消と独立した並行実行を確認した。
@@ -129,15 +130,11 @@ PyPIは配布名のハイフン・アンダースコア・ピリオドを同一�
 
 ## 問い合わせ・セキュリティ窓口
 
-通常の不具合は[GitHub Issues](https://github.com/omitsuhashi/schedula/issues)で管理する。
-受付担当はリポジトリ所有者 `@omitsuhashi`。
-現時点のリポジトリは非公開なので、アクセス権を持つ利用者のセキュリティ連絡もこの非公開窓口で受け付ける。
-初報にはエンジン版と影響概要を記載し、認証情報・実在従業員データ・攻撃可能な再現情報を載せない。
-詳細の安全な受け渡し方法は所有者と決める。
-
-公開前に外部利用者が使える非公開報告窓口を設定・確認し、案内を更新する。
-Private vulnerability reportingの設定APIは今回404だったため、有効とは表示しない。
-現在の非公開Issuesを、将来の公開環境でも非公開だと誤認して使わない。
+通常の不具合は[GitHub Issues](https://github.com/the3-inc/schedula/issues)で受け付ける。
+Issuesは公開されるため、認証情報・実在従業員データ・攻撃可能な再現情報を投稿しない。
+セキュリティに関する連絡は [omitsuhashi@the3.co.jp](mailto:omitsuhashi@the3.co.jp) 宛てに送る。
+受付担当はリポジトリ管理者 `@omitsuhashi`。
+初報にはエンジン版と影響概要を記載し、機密情報を含む詳細の安全な受け渡し方法は担当者と決める。
 
 ## 公開作業の完了条件
 
@@ -145,8 +142,7 @@ Private vulnerability reportingの設定APIは今回404だったため、有効�
 OR-Toolsを通常依存へ統一したため、旧手順の `--extra cp-sat` と `[cp-sat]` は削除する。
 過去の評価・移行記録と参照原本は保存時の表記を保持する。
 
-このマイルストーンでは条件と配布物を整備し、可視性変更・タグ作成・PyPI公開は別作業とする。
-実際の公開前に次を確認する。
+今後の配布版を公開する際は、次を確認する。
 
 - 公開対象のコード・文書・Git履歴から、許諾未確認の参照資料と機密情報を除外する。
 - LICENSE・README・メタデータ・依存表示が一致し、対象環境の依存wheelの同梱表示を保持する。
@@ -154,4 +150,8 @@ OR-Toolsを通常依存へ統一したため、旧手順の `--extra cp-sat` と
 - 外部利用者向け非公開セキュリティ窓口、対応環境、版管理、サポート範囲を確定する。
 - 配布元・SHA-256・正式タグの権限を確認し、公開結果を別途記録する。
 
-現在のwheel build・ローカル試用・非公開PRの成功は、無料公開や商用運用の開始を意味しない。
+wheel build・ローカル試用・PRの成功だけでは、新しい配布版の公開や商用運用の開始を確認したことにはならない。
+
+## 共有デザイン素材
+
+`web/vendor/the3-brand/`は`@the3/brand`の固定配布物で、本体のMIT許諾とは別です。共有CSS・会社ロゴの配布条件は同梱の`LICENSE`（`UNLICENSED`）を参照してください。第三者への再配布は素材の権利者へ確認します。

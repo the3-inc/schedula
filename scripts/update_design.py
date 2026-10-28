@@ -10,7 +10,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DESTINATION = ROOT / "demo/vendor/the3-brand"
+DESTINATION = ROOT / "web/vendor/the3-brand"
 FILES = {
     "package.json",
     "tokens.css",

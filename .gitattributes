@@ -1,1 +1,2 @@
-tests/fixtures/contract-migration/*.json -text
+web/vendor/brand-preset/** -text
+web/vendor/the3-brand/** -text

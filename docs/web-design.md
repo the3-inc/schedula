@@ -1,0 +1,42 @@
+# 製品Webのデザイン基準
+
+ブランドプリセットは会社サイトと各製品Webへ配布するグローバルCSSライブラリです。
+LP・デモ・技術案内の遷移で背景・書体・リンク・主要操作・ヘッダーの基調が変わらないことを目的にします。
+会社の公開製品紹介はlanding-page、このリポジトリはローカル製品LP・デモ・技術案内を保守します。
+メニュー内容と結果表の密度は用途に合わせますが、別のデザイン言語にはしません。
+
+## 配置と依存
+
+- `web/vendor/brand-preset/`: landing-pageの`@the3/brand-preset`を版固定して一式取り込む、全Web共通の配置。
+- `web/styles/global.css`: 製品名・ナビゲーション・技術案内などの製品共通構成と、共通トークンへの対応付け。
+- `web/styles/landing.css`: ローカル製品LPの図解・紹介セクションだけ。
+- `demo/style.css`: 操作パネル・入力サイズ・結果表・業務上の意味を持つ色だけ。
+
+全ページが`/brand-preset/base.css`と`/styles/global.css`を直接読み込みます。
+LPだけが`/styles/landing.css`、デモだけが`/demo/style.css`を追加します。
+デモがLP用CSSを読み込む依存と、`demo/brand-preset/`への配置は廃止しました。
+`the3-button`・`the3-button-compact`、`the3-site-header`、`the3-container`、`the3-skip-link`は配布ライブラリの実装を使います。
+本文・ボタン・フォーム・フォーカス・色を製品CSSで再定義しません。
+重複するCSS、後から常に上書きされる宣言、使われなくなったセレクターは積極的に削除します。共通スタイルは共通クラスへ任せ、用途に必要な差分だけを残します。
+削除前にHTML・JS・動的な状態の参照を確認し、両テーマ・狭い画面・既存デモの操作を検証します。固定した配布物は手編集せず、利用側のCSSを整理します。
+会社と同じくOSのライト・ダーク設定へ追従し、固定ライトテーマやデモだけの暗いヘッダーを設けません。
+役割・不足・違反など、意味を持つ色は背景色と文字色を組にして両テーマで読めるようにします。
+
+## 配布版の固定
+
+[brand-preset-v0.2.0](https://github.com/the3-inc/landing-page/releases/tag/brand-preset-v0.2.0)の公開アーカイブと`SHA256SUMS`を取得し、配布元の取り込みツールで検証・展開しました。
+`preset.lock.json`でアーカイブと各ファイルのSHA-256を固定しています。
+
+アーカイブのSHA-256: `40cdf64dd820572bad6b95fe8d18ce10e474c2dbeae390e998be3495d48fe419`。
+配布タグは会社側mainの`b937ee05cd3b0bbe73c39cf68f1d55a3072a510f`を指し、PRとmain CI、配布workflowの成功後に取得したものです。
+固定したファイルは`.gitattributes`で改行変換を無効にし、通常のCI・ビルドはコミット済みのCSSだけを使います。
+取得・更新は[配布元の導入手順](https://github.com/the3-inc/landing-page/blob/main/docs/brand-preset-distribution.md)に従い、プリセット内を手編集しません。
+`web/brand.py`が固定情報を検査し、公開ビルドは共通CSSを一つの内容hash付きアセットにまとめ、デモ・技術案内から共有します。
+`MANIFEST.in`でソース配布にも共通CSS・固定情報を含めます。Pythonライブラリのwheelには含めません。
+
+## 確認
+
+公開ビルド、ローカルserver、固定ファイル改変・改行変換、ソース配布を既存テストで確認します。
+ブラウザーテストはライト・ダーク、320/390/1440px、キーボードの本文移動、フォーカス、実計算を確認します。
+会社生成物を`COMPANY_SITE_DIR`へ指定すると、公開製品紹介・デモ・技術案内の基本スタイルも比較できます。
+「the3合同会社の製品」の表示と会社トップへの絶対URL、紹介・導入相談への戻り先を残します。

@@ -1,7 +1,7 @@
 # ランディングページの配信と確認
 
 主目的は導入・個別開発の相談につなげること。冒頭・デモ直後・文書案内・末尾に相談導線を置く。
-問い合わせ先は権利者が指定した `omitsuhashi@the3-o.com` とし、末尾のボタンで件名と相談項目を含むメール作成を開く。
+問い合わせ先は権利者が指定した `omitsuhashi@the3.co.jp` とし、末尾のボタンで件名と相談項目を含むメール作成を開く。
 ページ側で連絡先や相談内容を収集・保存・送信する処理は持たない。
 
 ## ローカル確認
@@ -16,8 +16,8 @@ uv run --locked python demo/server.py
 - デモ：`http://127.0.0.1:8765/demo/`
 
 LPを親の `/`、デモを子の `/demo/` に配置する。デモのJavaScript・CSS・サンプル・計算APIも `/demo/` 配下へ揃える。
-LPはJavaScriptや外部フォントを必要とせず、CSSとHTMLで表示する。デモはLPの `/landing.css` を読み込み、
-紙色・深緑・フォント・共通ヘッダーを共有し、操作フォームと結果表は専用CSSで調整する。
+LPはJavaScriptや外部フォントを必要とせず、CSSとHTMLで表示する。LP・デモ・技術案内が `/brand-preset/base.css` と `/styles/global.css` を直接読み込み、
+配色・書体・テーマ・操作の基本スタイルを共有する。LPの構成だけを `/styles/landing.css`、デモの操作パネルと結果表を専用CSSで調整する。
 
 旧 `/landing/` は `/`、末尾スラッシュのない `/demo` は `/demo/` へ308で転送する。
 旧デモの `/#demand` などのブックマークは `/demo/#demand` へ更新する。
@@ -46,7 +46,8 @@ LPは静的配信できるが、デモには計算APIの実行環境が必要と
 | URL | ファイル・接続先 |
 | --- | --- |
 | `/` | `demo/landing.html` |
-| `/landing.css` | `demo/landing.css` |
+| `/brand-preset/*.css` | `web/vendor/brand-preset/`のCSSのみ |
+| `/styles/global.css`、`/styles/landing.css` | `web/styles/`の製品共通構成・LP構成 |
 | `/docs.html` | `demo/guide.html` |
 | `/docs/*.md` | 上記4件の文書のみ |
 | `/license.txt` | `LICENSE` |
@@ -64,7 +65,7 @@ LPは静的配信できるが、デモには計算APIの実行環境が必要と
 AWS未適用であり、以下は実公開前の確認事項として残る。
 
 - デモの公開URLと実行基盤。入力上限・プロセス隔離・応答期限などは公開APIとして別途設計する。
-- ソース・配布の公開状況。現在は非公開・PyPI未公開として記載し、公開に合わせて案内と入手方法を更新する。
+- ソース・配布の公開状況。公開GitHubリポジトリとPyPIの0.2.0を案内し、公開先や配布版の変更時に案内を更新する。
 - 引き受ける開発・継続支援の範囲。現在は相談対象として説明し、費用・期間・SLAや実績は表示していない。
 - 詳細Markdown内の相対リンク。原文への入口を提供しており、リンク先を網羅する公開ドキュメントサイトではない。
 - メールアプリが使えない環境でもアドレスをコピーできること。実メール送信と受付先での受信は別途確認する。
@@ -102,7 +103,3 @@ node tests/landing-browser.cjs
 - 既存の `tests/playground-browser.cjs` も成功。実装済み主題、3シナリオ、100人・30日の勤務計画、JSON読込、入力アダプターの保存・再検証、応答失効を確認した。
 - 変更したPythonのRuff check・format、JavaScript構文確認、`git diff --check` が成功した。
 - 外部公開と実メール送信・受信は未実施。旧デモのブックマーク・旧APIを直接使う呼出元は新パスへ更新が必要。
-
-## 共有デザイン
-
-会社サイト由来の基本CSSを固定保存して読み込みます。[共有デザインの利用と更新](design-package.md)を参照してください。製品用の`landing.css`と`style.css`はこの共有基盤を使います。

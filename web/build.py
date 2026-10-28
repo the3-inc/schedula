@@ -3,17 +3,23 @@
 import argparse
 import hashlib
 import json
+import os
 import re
 from pathlib import Path
 from urllib.parse import urlsplit
 
+from web.brand import brand_css
 from web.lessons import LESSONS, PUBLIC_IDS, ROOT, SAMPLES
+from web.paths import BASE, PREFIX, SITE
 
-BASE = "/products/schedula/"
 DOCS = ("python-setup", "python-api", "io-contract-current", "distribution")
 
 
-def build(destination):
+def build(destination, *, ga4_id=None):
+    ga4_id = os.environ.get("PUBLIC_GA4_MEASUREMENT_ID", "") if ga4_id is None else ga4_id
+    if ga4_id and not re.fullmatch(r"G-[A-Z0-9]+", ga4_id):
+        raise ValueError("PUBLIC_GA4_MEASUREMENT_IDの形式が不正です。")
+    preset_css = brand_css()
     destination = Path(destination)
     if destination.exists() and any(destination.iterdir()):
         raise ValueError("空の出力先を指定してください。")
@@ -23,7 +29,11 @@ def build(destination):
     (product / "docs").mkdir()
 
     html = (ROOT / "demo" / "index.html").read_text(encoding="utf-8")
-    html = html.replace('<html lang="ja"', '<html lang="ja" data-public-demo="true"', 1)
+    html = html.replace(
+        '<html lang="ja"',
+        f'<html lang="ja" data-public-demo="true" data-api-base="{PREFIX}"',
+        1,
+    )
     start, end = html.index('  <details id="adapter-demo"'), html.index("</main>")
     html = html[:start] + html[end:]
     html = re.sub(r'  <script src="/demo/adapter.js" defer></script>\n', "", html)
@@ -45,30 +55,50 @@ def build(destination):
 
         return re.sub(r'\b(href|src)="/([^\"]*)"', replace, text)
 
-    # scriptはimportせずdefer順で共有する。ファイル内容ごとのhashを参照する。
-    for path in (ROOT / "demo").iterdir():
+    preset_name = f"brand.{hashlib.sha256(preset_css.encode()).hexdigest()[:16]}.css"
+    (product / "assets" / preset_name).write_text(preset_css, encoding="utf-8")
+    preset_url = BASE + "assets/" + preset_name
+    html = html.replace("/brand-preset/base.css", preset_url)
+    guide = guide.replace("/brand-preset/base.css", preset_url)
+    logo = ROOT / "web/vendor/the3-brand/assets/the3-symbol.svg"
+    logo_bytes = logo.read_bytes()
+    logo_name = f"the3-symbol.{hashlib.sha256(logo_bytes).hexdigest()[:16]}.svg"
+    (product / "assets" / logo_name).write_bytes(logo_bytes)
+    analytics_src = None
+    # 製品全体のCSSとデモ資産を同じ内容hash付き配信へまとめる。
+    paths = [ROOT / "web" / "styles" / "global.css", *(ROOT / "demo").iterdir()]
+    for path in paths:
         if path.suffix not in {".js", ".css"} or path.name == "adapter.js":
             continue
-        content = path.read_text(encoding="utf-8").replace("/demo/", BASE + "demo/")
+        content = path.read_text(encoding="utf-8")
+        content = content.replace("/demo/", BASE + "demo/")
         filename = f"{path.stem}.{hashlib.sha256(content.encode()).hexdigest()[:16]}{path.suffix}"
         (product / "assets" / filename).write_text(content, encoding="utf-8")
-        original = "/landing.css" if path.name == "landing.css" else f"/demo/{path.name}"
+        original = "/styles/global.css" if path.name == "global.css" else f"/demo/{path.name}"
+        if path.name == "analytics.js":
+            analytics_src = BASE + "assets/" + filename
         html = html.replace(original, BASE + "assets/" + filename)
         guide = guide.replace(original, BASE + "assets/" + filename)
-    design = ROOT / "demo/vendor/the3-brand"
-    for name in ("tokens.css", "base.css", "assets/the3-symbol.svg"):
-        path = design / name
-        content = path.read_bytes()
-        filename = f"the3-{path.stem}.{hashlib.sha256(content).hexdigest()[:16]}{path.suffix}"
-        (product / "assets" / filename).write_bytes(content)
-        original = f"/demo/vendor/the3-brand/{name}"
-        html = html.replace(original, BASE + "assets/" + filename)
-        guide = guide.replace(original, BASE + "assets/" + filename)
+    if ga4_id:
+        tag = f'  <script defer src="{analytics_src}" data-ga4-id="{ga4_id}"></script>\n'
+        html = html.replace("</head>", tag + "</head>")
+        guide = guide.replace("</head>", tag + "</head>")
+        notice = (
+            '<aside class="wrap guide-note" aria-label="アクセス解析について">'
+            "<p>当サイトではGoogle Analyticsを利用し、Cookie等を用いて閲覧状況や利用時間を"
+            "計測します。デモの入力内容はアクセス解析に送信しません。</p>"
+            '<p><a href="https://policies.google.com/technologies/partner-sites">'
+            "Googleによるデータの利用</a> · "
+            '<a href="https://tools.google.com/dlpage/gaoptout">Google Analyticsの無効化</a>'
+            "</p></aside>"
+        )
+        html = html.replace("</body>", notice + "</body>")
+        guide = guide.replace("</body>", notice + "</body>")
     html, guide = urls(html), urls(guide)
     for text, name in ((html, "demo/index.html"), (guide, "docs/index.html")):
         text = text.replace(
             "</head>",
-            f'  <link rel="canonical" href="https://the3.co.jp{BASE}{name.split("/")[0]}/">\n</head>',
+            f'  <link rel="canonical" href="{SITE}{BASE}{name.split("/")[0]}/">\n</head>',
         )
         (product / name).write_text(text, encoding="utf-8")
     catalog = json.loads((SAMPLES / "catalog.json").read_text(encoding="utf-8"))

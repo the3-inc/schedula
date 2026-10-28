@@ -9,19 +9,21 @@ JSON 契約0.15に対応し、独立した配置は最小費用流、
 担当時間・担当切替を含む配置と勤務計画は CP-SAT を使用します。
 
 独自コード・文書・デモは[MIT](LICENSE)で、自力導入・組み込み・商用利用ができます。
-現在のリポジトリは非公開で、PyPI公開は未実施です。参照資料はこの許諾の対象外です。
+ソースは[公開GitHubリポジトリ](https://github.com/the3-inc/schedula)から入手でき、
+配布版[shift-schedula 0.2.0](https://pypi.org/project/shift-schedula/0.2.0/)はPyPIで公開済みです。
+参照資料はこの許諾の対象外です。
 無料範囲、固定wheelの導入、依存表示、セキュリティ窓口と公開条件は[配布方針](docs/distribution.md)を参照してください。
 
 ## クリーンな環境から実行する
 
 [uv](https://docs.astral.sh/uv/getting-started/installation/) と Git を導入し、次を実行します。
-利用者向けの Python 要件は `>=3.14` です。開発環境は CPython 3.14.8 を
+利用者向けの Python 要件は `>=3.14` です。開発環境は CPython 3.14.10 を
 `.python-version` に固定し、依存版は `uv.lock` に記録しています。
 測定した対応環境と将来版の制限は[Pythonセットアップ](docs/python-setup.md)を参照してください。
 すでに clone 済みなら、リポジトリ直下で `uv python install` から実行してください。
 
 ```sh
-git clone https://github.com/omitsuhashi/schedula.git
+git clone https://github.com/the3-inc/schedula.git
 cd schedula
 uv python install
 uv sync --locked
@@ -54,7 +56,7 @@ uv run --locked python -m shift_schedula schema response
 
 導入・個別開発の相談を主導線にした[ランディングページ](demo/landing.html)も、
 以下のサーバーで [http://127.0.0.1:8765/](http://127.0.0.1:8765/) から確認できます。
-既存デモ・ドキュメント案内へ移動でき、問い合わせは `omitsuhashi@the3-o.com` 宛ての
+既存デモ・ドキュメント案内へ移動でき、問い合わせは `omitsuhashi@the3.co.jp` 宛ての
 メール作成を開きます。受付フォームやメール送信処理は持ちません。
 このサーバーはローカル確認専用です。インターネットへの公開は行いません。
 公開時の配置と確認項目は[LPの配信手順](docs/landing-page.md)を参照してください。
@@ -68,7 +70,8 @@ uv sync --locked
 uv run --locked python demo/server.py
 ```
 
-[http://127.0.0.1:8765/demo/](http://127.0.0.1:8765/demo/) をブラウザーで開き、機能を選びます。
+[http://127.0.0.1:8765/demo/](http://127.0.0.1:8765/demo/) をブラウザーで開くと、必要人数の初期計算が始まります。
+条件を左、結果を右に表示し、「3人で試す」で条件変更と計算を一度に行えます。
 補助入口の「複数条件を組み合わせる」では、架空の飲食店の配置を実計算します。
 「通常のランチ営業」「急な欠勤」「ピーク時の必要人数増加」を選び、
 「この変更を入力」→「再計算」で元の条件と比較できます。
@@ -80,7 +83,8 @@ uv run --locked python demo/server.py
 `INFEASIBLE` は解なし、`UNKNOWN` は未確定です。入力不備・依存不足・内部障害・通信失敗も文字と診断で読み分けます。
 登録・JSON の手作成は不要です。終了はターミナルで Ctrl+C。
 8765が使用中なら `--port 8766` を追加し、表示されるURLを開いてください。
-最初の画面は機能一覧です。「必要人数」「連続勤務日数」「夜勤回数」を選ぶと、初期計算→条件編集→再計算→比較→復元をJSON編集なしで試せます。
+「必要人数」「連勤上限」「手修正の検証」は上部から選べます。「すべての機能」（`#feature-list`）からは44主題と補助入口を探せます。
+必要人数・連勤上限・手修正検証には初回のおすすめ操作があり、手入力した条件は「再計算」「再検証」で反映します。初期結果との比較・復元をJSON編集なしで試せます。
 「手修正検証」は一枠の担当を変更し、公開verifyの有効性・不足・違反位置を確認して直せます。最適性・不足最小性は認定しません。
 「技能」「勤務可能時間」「出退勤」「休憩」「夜勤」「分割勤務」も条件を編集して比較できます。補助入口の「24時間」「48時間」は日付付き勤務表と不足、原勤務量と計画内勤務量を表示し、48時間では勤務間休息の影響を確認できます。
 「担当時間上限」「勤務時間上限」「週・月の勤務量」「勤務間の休息」も個別に試せます。変更した条件と実際の分数、期間、休息間隔を並べ、成立・不足・不成立を区別します。
@@ -410,6 +414,8 @@ Git には採用判断で使う入力・条件・集計・失敗を含む生デ�
 | --- | --- |
 | [全体像](docs/overview.md) | 目的、利用例、対象範囲、構成、公開物 |
 | [設計方針](docs/design-policy.md) | アルゴリズム選択、制約・選好、検証、LLM の境界 |
+| [OR-Tools公式サンプルとの対応](docs/evaluations/or-tools-shift-scheduling.md) | 機能ごとの対応・意味の差・不足とソース根拠 |
+| [勤務計画APIの改修案](docs/designs/roster-api-and-coverage.md) | JSONとPython引数の役割、簡単な入口、機能差を埋める改修と受け入れ条件 |
 | [現行契約0.15](docs/io-contract-current.md) | 全機能の入力・原区間・既定値・必須条件・目的・状態・証明・実行上限 |
 | [分割入力と実行記録](docs/input-adapter.md) | 所有元、確認失効、純粋な組立、記録・保存・現在の再検証 |
 | [契約サポート方針](docs/contract-support.md) | 次回変更の互換性判断、旧契約対応・移行・終了条件 |
@@ -447,6 +453,12 @@ PyPI公開には `pypi` Environment を使用します。Webサービスのprodu
 需要priorityは省略0。不足総量を先に最小化し、同量ならpriority群の降順、指定目的の順に比較します。
 [現行契約](docs/io-contract-current.md#日時担当配置需要)と[1人・2役割の例](examples/demand_priority.json)を参照してください。
 
-## 共有デザイン
+## 会社共通のWebプリセット
 
-デモと技術案内は、landing-pageで管理する`@the3/brand`のCSSを固定保存して使います。[共有デザインの利用と更新](docs/design-package.md)を参照してください。`demo/vendor/the3-brand/`の素材は同梱の配布条件に従い、schedula本体のMITライセンスとは別に扱います。
+LP・デモ・技術案内は、landing-pageが公開した共通CSSライブラリ`brand-preset-v0.2.0`を`web/vendor/brand-preset/`へ取り込み、`web/styles/global.css`と合わせて共有しています。
+版とSHA-256は`preset.lock.json`で固定し、公開ビルドで整合を検査します。通常のビルドは配布元への通信を行いません。
+[製品Webのデザイン基準](docs/web-design.md)と、[配布元の導入・更新手順](https://github.com/the3-inc/landing-page/blob/main/docs/brand-preset-distribution.md)を参照してください。
+
+## design-v1への移行
+
+共有CSSは`@the3/brand`を`web/vendor/the3-brand/`へ固定して使います。[共有デザインの利用と更新](docs/design-package.md)を参照してください。素材の配布条件は同梱の`LICENSE`に従い、本体のMIT許諾とは区別します。

@@ -26,7 +26,6 @@ ROOT = Path(__file__).resolve().parents[1]
 SAMPLES = ROOT / "examples" / "playground"
 BASELINE = load_json((SAMPLES / "lunch.json").read_text(encoding="utf-8"))
 TIMES = sorted({value for item in BASELINE["demand"] for value in item["interval"].values()})
-DESIGN = ROOT / "demo" / "vendor" / "the3-brand"
 FILES = {
     "/demo/": (ROOT / "demo" / "index.html", "text/html; charset=utf-8"),
     "/demo/app.js": (ROOT / "demo" / "app.js", "text/javascript; charset=utf-8"),
@@ -68,22 +67,21 @@ FILES = {
 }
 FILES.update(
     {
-        "/demo/vendor/the3-brand/tokens.css": (DESIGN / "tokens.css", "text/css; charset=utf-8"),
-        "/demo/vendor/the3-brand/base.css": (DESIGN / "base.css", "text/css; charset=utf-8"),
-        "/demo/vendor/the3-brand/assets/the3-symbol.svg": (
-            DESIGN / "assets/the3-symbol.svg",
-            "image/svg+xml",
-        ),
-    }
-)
-FILES.update(
-    {
         "/": (ROOT / "demo" / "landing.html", "text/html; charset=utf-8"),
-        "/landing.css": (ROOT / "demo" / "landing.css", "text/css; charset=utf-8"),
         "/docs.html": (ROOT / "demo" / "guide.html", "text/html; charset=utf-8"),
         "/license.txt": (ROOT / "LICENSE", "text/plain; charset=utf-8"),
     }
 )
+for name in ("base", "tokens"):
+    FILES[f"/brand-preset/{name}.css"] = (
+        ROOT / "web" / "vendor" / "the3-brand" / f"{name}.css",
+        "text/css; charset=utf-8",
+    )
+for name in ("global", "landing"):
+    FILES[f"/styles/{name}.css"] = (
+        ROOT / "web" / "styles" / f"{name}.css",
+        "text/css; charset=utf-8",
+    )
 for name in ("python-setup", "python-api", "io-contract-current", "distribution"):
     FILES[f"/docs/{name}.md"] = (
         ROOT / "docs" / f"{name}.md",

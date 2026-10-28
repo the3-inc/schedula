@@ -1,12 +1,11 @@
 <!doctype html>
-<html lang="ja" data-theme="light">
+<html lang="ja">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>機能を試す | shift-schedula</title>
-  <link rel="stylesheet" href="/demo/vendor/the3-brand/tokens.css">
-  <link rel="stylesheet" href="/demo/vendor/the3-brand/base.css">
-  <link rel="stylesheet" href="/landing.css">
+  <link rel="stylesheet" href="/brand-preset/base.css">
+  <link rel="stylesheet" href="/styles/global.css">
   <link rel="stylesheet" href="/demo/style.css">
   <script src="/demo/app.js" defer></script>
   <script src="/demo/adapter.js" defer></script>
@@ -18,43 +17,47 @@
   <script src="/demo/features.js" defer></script>
 </head>
 <body>
-<a class="the3-skip-link" href="#main">本文へ移動</a>
-<header class="site-header">
-  <a class="brand" href="/" aria-label="shift-schedula ホーム"><span class="brand-mark" aria-hidden="true">s.</span>shift-schedula</a>
-  <nav aria-label="メインナビゲーション"><a href="/demo/" aria-current="page">デモ</a><a href="/docs.html">ドキュメント</a><a class="button small" href="/#contact">導入を相談する <span aria-hidden="true">↗</span></a></nav>
+<a class="skip-link the3-skip-link" href="#main">本文へ移動</a>
+<header class="site-header the3-site-header demo-header">
+  <div class="brand-family"><a class="brand" href="/" aria-label="shift-schedula ホーム"><span class="brand-mark" aria-hidden="true">s.</span>shift-schedula</a><a class="company-link" href="https://the3.co.jp/">the3合同会社の製品</a></div>
+  <nav aria-label="メインナビゲーション"><a href="/demo/" aria-current="page">デモ</a><a href="/docs.html">ドキュメント</a><a class="button the3-button the3-button-compact" href="/#contact">導入を相談する <span aria-hidden="true">↗</span></a></nav>
 </header>
-<main id="main" class="wrap demo-main">
+<main id="main" class="wrap the3-container demo-main">
   <div class="demo-heading">
-    <p class="eyebrow">TRY THE FEATURES / 架空データ</p>
-    <h1>担当配置と勤務計画の機能を試す</h1>
-    <p>機能を選び、条件を一種類変えて、結果の変化を確かめます。</p>
-    <nav class="demo-nav" aria-label="デモの移動"><a href="#">機能一覧</a><a href="#demand">必要人数</a><a href="#consecutive_days">連続勤務日数</a><a href="#shift_count_balance">夜勤回数</a><a href="#verify">手修正検証</a></nav>
-    <p class="note">移動・復元すると編集中の条件と結果は失われます。固定日付・Asia/Tokyoの教材です。</p>
+    <h1><span>条件を変えて、</span><span>配置の違いを見る</span></h1>
+    <p>架空データで試せます。条件を変える → 計算する → 初期結果と比べる。</p>
+    <nav class="demo-nav" aria-label="デモの移動"><a href="#demand">必要人数</a><a href="#consecutive_days">連勤上限</a><a href="#verify">手修正の検証</a><a href="#feature-list">すべての機能</a></nav>
   </div>
-  <section id="feature-list" aria-label="機能一覧"></section>
+  <section id="feature-list" hidden aria-label="機能一覧"></section>
   <section id="feature-demo" hidden aria-labelledby="feature-title">
-    <h2 id="feature-title" tabindex="-1"></h2>
-    <p id="feature-intro"></p>
     <div class="layout">
-      <div>
+      <div class="feature-sidebar">
+        <p id="feature-context" class="note"></p>
+        <h2 id="feature-title" tabindex="-1"></h2>
+        <p id="feature-intro"></p>
         <form id="feature-form">
           <fieldset id="feature-controls">
-            <legend>この機能の条件</legend>
+            <legend class="sr-only">この機能の条件</legend>
             <div id="feature-fields"></div>
-            <div id="feature-guide" class="guide"></div>
+            <p id="feature-first-guide" class="feature-first-guide"></p>
             <div class="actions">
-              <button id="feature-run" class="primary" type="submit">再計算</button>
+              <button id="feature-try" class="primary the3-button the3-button-compact" type="button" hidden></button>
+              <button id="feature-run" class="primary the3-button the3-button-compact" type="submit">再計算</button>
               <button id="feature-restore" type="button">初期条件へ戻す</button>
             </div>
+            <button id="feature-view-result" type="button">結果を見る</button>
+            <details class="feature-more"><summary>ほかの試し方</summary><div id="feature-guide"></div></details>
           </fieldset>
         </form>
         <details><summary>この例の前提・目的順序</summary><div id="feature-premises"></div></details>
+        <p class="note">教材の切替・復元で編集はリセットされます。</p>
       </div>
-      <div>
+      <div class="feature-result-panel">
         <section id="feature-result" aria-busy="false" aria-label="機能の結果">
-          <p id="feature-status" role="status" aria-live="polite"></p>
+          <p id="feature-status" tabindex="-1" role="status" aria-live="polite"></p>
           <div id="feature-output"></div>
         </section>
+        <div class="feature-next"><a href="/docs.html">組み込み方法を見る</a><a href="/#contact">自社の条件を相談する</a></div>
       </div>
     </div>
   </section>
@@ -84,7 +87,7 @@
       <button id="adapter-check" type="button">入力を検査</button>
       <label for="adapter-source">確認する入力元</label><select id="adapter-source"></select>
       <button id="adapter-confirm" type="button">この入力元を確認</button>
-      <button id="adapter-run" class="primary" type="button">確定入力で計算</button>
+      <button id="adapter-run" class="primary the3-button the3-button-compact" type="button">確定入力で計算</button>
       <button id="adapter-save-draft" type="button">Draftを保存</button>
       <button id="adapter-save-record" type="button" disabled>実行記録を保存</button>
       <button id="adapter-reverify" type="button" disabled>保存記録を再検証</button>
@@ -118,7 +121,7 @@
         <p class="note">契約0.15のみ対応。旧版・未知版・版欠落は拒否します。ファイル・本文は2 MiBまで。勤務計画と一般の正の最低人数には OR-Tools が必要です。</p>
         <label for="json-input">計算する JSON</label>
         <textarea id="json-input" rows="12" spellcheck="false" required></textarea>
-        <div class="actions"><button class="primary" id="json-calculate" type="submit">JSON で計算</button></div>
+        <div class="actions"><button class="primary the3-button the3-button-compact" id="json-calculate" type="submit">JSON で計算</button></div>
       </fieldset>
     </form>
     <section id="json-result" aria-busy="false" aria-label="JSON の計算結果">
@@ -146,7 +149,7 @@
           <section>
             <h2>役割ごとの必要人数</h2>
             <div id="demand" class="scroll" tabindex="0" role="region" aria-label="必要人数の条件表"></div>
-            <div class="actions"><button class="primary" id="calculate" type="submit">再計算</button></div>
+            <div class="actions"><button class="primary the3-button the3-button-compact" id="calculate" type="submit">再計算</button></div>
             <p class="note">各枠0〜6人を入力します。条件を自動で緩めることはありません。</p>
           </section>
         </div>
@@ -168,6 +171,6 @@
     </fieldset>
   </form>
 </main>
-<footer class="site-footer wrap"><p>架空入力を使うローカルデモです。試験値は就業規則や法令の推奨値ではありません。全44主題の展開と利用者評価は進行中です。</p><a href="/">ライブラリの紹介へ戻る <span aria-hidden="true">→</span></a></footer>
+<footer class="site-footer wrap the3-container"><p>架空入力を使うローカルデモです。試験値は就業規則や法令の推奨値ではありません。全44主題の展開と利用者評価は進行中です。</p><a href="/">ライブラリの紹介へ戻る <span aria-hidden="true">→</span></a></footer>
 </body>
 </html>

@@ -14,6 +14,7 @@ OR-Toolsは通常の実行依存であり、extraの指定は不要。
 公開jobだけが `pypi` Environmentと `id-token: write` を使用する。
 ビルドjobは `actions: read` と `GITHUB_TOKEN` でCIの結果だけを読み取る。
 API tokenをRepository Secretsに保存せず、GitHubのOIDCによるTrusted Publishingで認証する。
+デモ公開と共用するリポジトリの OIDC subject は `.github/oidc-subject.json` の `use_default: true` を維持する。通常ジョブの `publish.yml` が OIDC トークンを取得できるよう、再利用 workflow 専用の `job_workflow_ref` を subject の必須項目にしない。デモの AWS 側は独立した条件キーで workflow を制限し、PyPI の workflow / Environment 登録は変更しない。
 タグ作成は公開の指示になるため、初回は[配布方針の公開条件](distribution.md#公開作業の完了条件)を
 確認し、公開物・ライセンス・外部利用者向けセキュリティ窓口を整えてから実行する。
 GitHubを非公開のまま運用しても、PyPIにアップロードしたソースと文書は公開される。
