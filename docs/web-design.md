@@ -25,7 +25,7 @@ LPだけが`/styles/landing.css`、デモだけが`/demo/style.css`を追加し�
 ## 配布版の固定
 
 配布元の`design-v*`アーカイブを検証し、`provenance.json`で版・元コミット・アーカイブと各ファイルのSHA-256を固定します。
-初回PRの検証候補は正式Release発行後に差し替えます。現在の固定値は同ファイルを参照してください。
+[design-v1.0.0](https://github.com/the3-inc/landing-page/releases/tag/design-v1.0.0)の正式Releaseから取得して固定しています。現在の固定値は同ファイルを参照してください。
 固定したファイルは`.gitattributes`で改行変換を無効にし、通常のCI・ビルドはコミット済みのCSSだけを使います。
 取得・更新は[共有デザインの利用と更新](design-package.md)に従い、プリセット内を手編集しません。
 `web/brand.py`が固定情報を検査し、公開ビルドは共通CSSを一つの内容hash付きアセットにまとめ、デモ・技術案内から共有します。
