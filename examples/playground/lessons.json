@@ -26,7 +26,7 @@
     "steps": [
       {
         "id": "initial",
-        "instruction": "初期条件で計算し、必要人数と配置人数、不足0人分を確認する。",
+        "instruction": "初期条件で計算し、必要人数と配置人数、不足0人・分を確認する。",
         "restore": false,
         "changes": {},
         "expected": {
@@ -37,7 +37,7 @@
       },
       {
         "id": "covered",
-        "instruction": "12:00〜13:00のホールを2人から3人へ変更する。配置は増え、不足は0人分のままになる。",
+        "instruction": "12:00〜13:00のホールを2人から3人へ変更する。配置は増え、不足は0人・分のままになる。",
         "restore": false,
         "changes": {
           "demand": {
@@ -461,7 +461,7 @@
       },
       {
         "id": "partial",
-        "instruction": "キッチンを担当なしへ変更する。必須条件は満たすが不足60人分が残る。",
+        "instruction": "キッチンを担当なしへ変更する。必須条件は満たすが不足60人・分が残る。",
         "restore": false,
         "changes": {
           "kitchen_employee": ""
@@ -1439,7 +1439,7 @@
     "steps": [
       {
         "id": "initial",
-        "instruction": "初期条件で計算し、適用条件と担当・勤務量、不足0人分を確認する。",
+        "instruction": "初期条件で計算し、適用条件と担当・勤務量、不足0人・分を確認する。",
         "changes": {},
         "restore": false,
         "expected": {
@@ -1451,7 +1451,7 @@
       },
       {
         "id": "lower",
-        "instruction": "担当時間の上限だけを90分へ下げる。Aは上限内に収まり、不足は30人分になる。",
+        "instruction": "担当時間の上限だけを90分へ下げる。Aは上限内に収まり、不足は30人・分になる。",
         "changes": {
           "constraints": {
             "limit": {
@@ -1469,7 +1469,7 @@
       },
       {
         "id": "zero",
-        "instruction": "担当時間の上限だけを0分へ下げる。Bの60分だけが担当可能で、不足は120人分になる。",
+        "instruction": "担当時間の上限だけを0分へ下げる。Bの60分だけが担当可能で、不足は120人・分になる。",
         "changes": {
           "constraints": {
             "limit": {
@@ -1531,7 +1531,7 @@
     "steps": [
       {
         "id": "initial",
-        "instruction": "初期条件で計算し、適用条件と担当・勤務量、不足0人分を確認する。",
+        "instruction": "初期条件で計算し、適用条件と担当・勤務量、不足0人・分を確認する。",
         "changes": {},
         "restore": false,
         "expected": {
@@ -1543,7 +1543,7 @@
       },
       {
         "id": "lower",
-        "instruction": "勤務時間の上限だけを180分へ下げる。Aの240分の候補は選べず、不足は180人分になる。",
+        "instruction": "勤務時間の上限だけを180分へ下げる。Aの240分の候補は選べず、不足は180人・分になる。",
         "changes": {
           "constraints": {
             "limit": {
@@ -1644,7 +1644,7 @@
     "steps": [
       {
         "id": "initial",
-        "instruction": "初期条件で計算し、適用条件と担当・勤務量、不足0人分を確認する。",
+        "instruction": "初期条件で計算し、適用条件と担当・勤務量、不足0人・分を確認する。",
         "changes": {},
         "restore": false,
         "expected": {
@@ -1692,7 +1692,7 @@
       },
       {
         "id": "maximum",
-        "instruction": "週の上限だけを0分へ下げる。Aは勤務できず、2日目に60人分の不足が残る。",
+        "instruction": "週の上限だけを0分へ下げる。Aは勤務できず、2日目に60人・分の不足が残る。",
         "changes": {
           "constraints": {
             "bounds": {
@@ -1775,7 +1775,7 @@
     "steps": [
       {
         "id": "initial",
-        "instruction": "初期条件で計算し、適用条件と担当・勤務量、不足0人分を確認する。",
+        "instruction": "初期条件で計算し、適用条件と担当・勤務量、不足0人・分を確認する。",
         "changes": {},
         "restore": false,
         "expected": {
@@ -1787,7 +1787,7 @@
       },
       {
         "id": "longer",
-        "instruction": "必要な休息だけを420分へ増やす。2候補の間は360分なので同時採用できず、240人分の不足になる。",
+        "instruction": "必要な休息だけを420分へ増やす。2候補の間は360分なので同時採用できず、240人・分の不足になる。",
         "changes": {
           "constraints": {
             "rest": {
@@ -1805,7 +1805,7 @@
       },
       {
         "id": "shorter",
-        "instruction": "必要な休息だけを300分へ下げる。360分の間隔は条件を満たし、不足は0人分のまま。",
+        "instruction": "必要な休息だけを300分へ下げる。360分の間隔は条件を満たし、不足は0人・分のまま。",
         "changes": {
           "constraints": {
             "rest": {
@@ -1902,7 +1902,7 @@
       },
       {
         "id": "upper",
-        "instruction": "勤務日上限を2日へ下げる。完全休日とは別の数え方で、不足60人分になる。",
+        "instruction": "勤務日上限を2日へ下げる。完全休日とは別の数え方で、不足60人・分になる。",
         "changes": {
           "constraints": {
             "days": {
@@ -2115,7 +2115,7 @@
       },
       {
         "id": "lower",
-        "instruction": "完全休日下限を2日へ上げる。夜勤明けを休日にせず、不足60人分になる。",
+        "instruction": "完全休日下限を2日へ上げる。夜勤明けを休日にせず、不足60人・分になる。",
         "changes": {
           "constraints": {
             "days": {
@@ -2309,7 +2309,7 @@
       },
       {
         "id": "two",
-        "instruction": "連続休日を2日へ変更。6・7日を休み、不足60人分になる。",
+        "instruction": "連続休日を2日へ変更。6・7日を休み、不足60人・分になる。",
         "changes": {
           "constraints": {
             "pattern": {
@@ -2485,7 +2485,7 @@
       },
       {
         "id": "three",
-        "instruction": "完全休日を3日へ変更。次勤務は10日00時以降となり、不足90人分。",
+        "instruction": "完全休日を3日へ変更。次勤務は10日00時以降となり、不足90人・分。",
         "changes": {
           "constraints": {
             "pattern": {
@@ -2631,7 +2631,7 @@
     "steps": [
       {
         "id": "initial",
-        "instruction": "開始日差2日。中間勤務を挟んでも7日の早番を禁止し、不足60人分。",
+        "instruction": "開始日差2日。中間勤務を挟んでも7日の早番を禁止し、不足60人・分。",
         "changes": {},
         "restore": false,
         "expected": {
@@ -2642,7 +2642,7 @@
       },
       {
         "id": "one",
-        "instruction": "開始日差1日へ変更。翌日の中間勤務は早番に該当せず、不足0人分。",
+        "instruction": "開始日差1日へ変更。翌日の中間勤務は早番に該当せず、不足0人・分。",
         "changes": {
           "constraints": {
             "pattern": {
@@ -2659,7 +2659,7 @@
       },
       {
         "id": "three",
-        "instruction": "開始日差3日へ変更。該当する候補の組がなく、不足0人分になる。",
+        "instruction": "開始日差3日へ変更。該当する候補の組がなく、不足0人・分になる。",
         "changes": {
           "constraints": {
             "pattern": {
@@ -2804,7 +2804,7 @@
       },
       {
         "id": "one",
-        "instruction": "上限を1群へ変更。第1週末だけを勤務し、第2週末に60人分不足。",
+        "instruction": "上限を1群へ変更。第1週末だけを勤務し、第2週末に60人・分不足。",
         "changes": {
           "constraints": {
             "pattern": {
@@ -2838,7 +2838,7 @@
       },
       {
         "id": "combined",
-        "instruction": "4日を一つの日付群へまとめ、上限1群。3日へ触れても一群で不足0人分。",
+        "instruction": "4日を一つの日付群へまとめ、上限1群。3日へ触れても一群で不足0人・分。",
         "changes": {
           "constraints": {
             "pattern": {

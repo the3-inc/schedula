@@ -16,7 +16,8 @@ function renderVerifyFields() {
     ...feature.input.request.employees.map(item => node("option", item.label, {value: item.id}))]);
   select.value = kitchenEmployee(feature.input);
   select.addEventListener("change", () => featureEdited(editKitchen(feature.input, select.value)));
-  $("feature-fields").append(node("label", "10月5日10:00〜11:00のキッチン担当（Asia/Tokyo）", {for: select.id}), select);
+  $("feature-fields").append(node("label", "10月5日10:00〜11:00のキッチン担当（Asia/Tokyo）", {for: select.id}), select,
+    node("p", "", {id: "feature-kitchen-error", class: "feature-violation", hidden: ""}));
 }
 
 function acceptVerification(response, input) {
@@ -67,26 +68,35 @@ function acceptVerification(response, input) {
 }
 
 function renderVerify(message) {
-  const area = $("feature-output"), pair = feature.current, input = feature.input;
-  const changes = verifyChanges(feature.initial, input);
+  const area = $("feature-output"), pair = feature.current || feature.previous, input = pair?.input || feature.input;
+  const changes = verifyChanges(feature.initial, feature.input);
   const texts = {VALID: "必須条件と需要を満たす編集案です。", PARTIAL: "必須条件を満たしますが需要に不足があります。",
     INVALID_PLAN: "必須条件違反のある編集案です。担当を直して再検証できます。", INVALID_INPUT: "元入力が不正です。検証は未実施です。", INTERNAL_ERROR: "検証を完了できませんでした。再実行できます。"};
-  $("feature-status").textContent = message || (pair ? `${pair.response.status} · ${texts[pair.response.status]}` : "未検証：担当を編集したため前の検証は現在の案には無効です。再検証してください。");
+  $("feature-status").textContent = message || (feature.current ? `${pair.response.status} · ${texts[pair.response.status]}` : "未検証：担当を編集したため前の検証は現在の案には無効です。再検証してください。");
   const violations = pair?.response.verification.violations || [];
+  const conflict = !!feature.current && violations.some(item => item.code === "DOUBLE_ASSIGNMENT" && item.related_ids.includes(kitchenEmployee(input)));
+  const hint = $("feature-kitchen-error"), select = $("feature-kitchen");
+  hint.hidden = !conflict;
+  hint.textContent = conflict ? `同じ時間にホールも担当しています。キッチン担当を初期の${input.request.employees.find(item => item.id === kitchenEmployee(feature.initial)).label}へ戻して、再検証してください。` : "";
+  select.setAttribute("aria-invalid", String(conflict));
+  if (conflict) select.setAttribute("aria-describedby", hint.id);
+  else select.removeAttribute("aria-describedby");
   const overview = node("section", "", {class: "feature-overview", "aria-label": "変更と検証の要点"}, [
     node("h3", pair ? texts[pair.response.status] : "変更した担当は、まだ検証されていません。"),
     ...[...new Set(violations.map(item => item.message))].map(text => node("p", text, {class: "feature-violation"})),
-    ...(pair?.response.shortage_summary ? [node("p", `初期不足${feature.baseline?.response.shortage_summary?.total_person_minutes ?? "—"}人分 → 現在不足${pair.response.shortage_summary.total_person_minutes}人分`)] : []),
+    ...(pair?.response.shortage_summary ? [node("p", `初期不足${feature.baseline?.response.shortage_summary?.total_person_minutes ?? "—"}人・分 → ${feature.current ? "現在" : "前回"}不足${pair.response.shortage_summary.total_person_minutes}人・分`)] : []),
   ]);
   area.replaceChildren(overview);
   const rows = input.request.roles.map(role => {
     const index = input.solution.assignments.findIndex(item => item.role_id === role.id), assignment = input.solution.assignments[index];
     const pointer = index < 0 ? "担当なし" : `/assignments/${index}`;
-    return node("tr", "", {"data-json-pointer": pointer, class: violations.some(item => item.json_pointer === pointer) ? "feature-violation" : ""}, [node("th", {kitchen: "キッチン", hall: "ホール"}[role.id] || role.label, {scope: "row"}), node("td", range(input.request.demand.find(item => item.role_id === role.id).interval)),
+    const related = violations.filter(item => item.json_pointer === pointer ||
+      (item.code === "DOUBLE_ASSIGNMENT" && item.related_ids.includes(assignment?.employee_id)));
+    return node("tr", "", {"data-json-pointer": pointer, class: related.length ? "feature-violation" : ""}, [node("th", {kitchen: "キッチン", hall: "ホール"}[role.id] || role.label, {scope: "row"}), node("td", range(input.request.demand.find(item => item.role_id === role.id).interval)),
       node("td", assignment ? input.request.employees.find(item => item.id === assignment.employee_id)?.label || assignment.employee_id : "担当なし"),
-      node("td", [...new Set(violations.filter(item => item.json_pointer === pointer).map(item => item.message))].join(" / "))]);
+      node("td", [...new Set(related.map(item => item.message))].join(" / "))]);
   });
-  area.append(node("h3", "検査対象の編集案"), node("p", "無効案・未検証の案もここに表示します。有効な勤務表として採用する操作はありません。"),
+  area.append(node("h3", !feature.current && pair ? "前回検証した編集案" : "検査対象の編集案"), node("p", "無効案・未検証の案もここに表示します。有効な勤務表として採用する操作はありません。"),
     scroll("検査対象の表", table("固定の勤務2件に対する担当編集案（最適化結果ではありません）", ["役割", "時間帯", "担当者", "この位置の違反"], rows)));
   area.append(node("details", "", {}, [node("summary", "変更した条件・検証の詳しい情報"),
     node("ul", "", {}, (changes.length ? changes : ["初期の編集案から変更なし"]).map(text => node("li", text))),
@@ -96,5 +106,5 @@ function renderVerify(message) {
   ]));
   if (pair) area.append(details("この例のJSON・元Request・公開verify結果", pair));
   if (feature.baseline) area.append(details("初期入力と公開検証", feature.baseline));
-  if (feature.previous) area.append(details("変更前の検証（現在の案には無効）", feature.previous));
+  if (feature.current && feature.previous) area.append(details("変更前の検証（現在の案には無効）", feature.previous));
 }

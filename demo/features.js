@@ -27,12 +27,16 @@ function featureChanges(definitions, before, after) {
   const changes = [];
   for (const definition of definitions) {
     const {collection, ids, field, label, unit} = definition;
+    const edits = [];
     for (const id of ids || [null]) {
       const item = id === null ? before : before[collection].find(item => item.id === id);
       const next = id === null ? after : after[collection].find(item => item.id === id);
       if (JSON.stringify(item[field]) === JSON.stringify(next[field])) continue;
-      changes.push(`${label}${id ? ` (${id})` : ""}：${displayField(field, item[field])} → ${displayField(field, next[field])} · ${unit}`);
+      edits.push({id, text: `${displayField(field, item[field])} → ${displayField(field, next[field])} · ${unit}`});
     }
+    if (collection === "demand" && edits.length > 1 && edits.every(edit => edit.text === edits[0].text))
+      changes.push(`${label}：${edits[0].text}`);
+    else changes.push(...edits.map(edit => `${label}${edit.id ? ` (${edit.id})` : ""}：${edit.text}`));
   }
   return changes;
 }
@@ -53,10 +57,21 @@ function featureMetric(label, before, after, unit, warning = false) {
     node("div", "", {class: "feature-values"}, [
       node("span", "", {}, [node("small", "初期"), node("strong", before == null ? "—" : `${before}${unit}`)]),
       node("span", "→", {"aria-hidden": "true"}),
-      node("span", "", {}, [node("small", "現在"), node("strong", `${after}${unit}`)]),
+      node("span", "", {}, [node("small", feature.current ? "現在" : "前回"), node("strong", `${after}${unit}`)]),
     ]),
     node("small", before == null ? "初期結果は比較できません" : before === after ? "変化なし" : "初期から変化"),
   ]);
+}
+
+function featureShortages(pair) {
+  const shortages = [];
+  for (const item of pair.response.shortage_summary.shortages) {
+    const previous = shortages.findLast(previous => previous.role_id === item.role_id &&
+      previous.missing_people === item.missing_people && previous.interval.end === item.interval.start);
+    if (previous) previous.interval.end = item.interval.end;
+    else shortages.push(clone(item));
+  }
+  return shortages;
 }
 
 function featureSummary(pair, base) {
@@ -94,15 +109,18 @@ function featureSummary(pair, base) {
   if (lesson.id === "shift_count_balance") cards.push(featureMetric("勤務回数の目標偏差", comparable ? base.response.shift_count_balance_summary[0].total_deviation_count : null,
     pair.response.shift_count_balance_summary[0].total_deviation_count, "回"));
   const shortage = pair.response.shortage_summary.total_person_minutes;
-  cards.push(featureMetric("不足合計", comparable ? base.response.shortage_summary.total_person_minutes : null, shortage, "人分", shortage > 0));
+  cards.push(featureMetric("不足量の合計", comparable ? base.response.shortage_summary.total_person_minutes : null, shortage, "人・分", shortage > 0));
   const summary = node("div", "", {class: "feature-summary"}, cards);
-  const title = shortage ? "必要人数を満たせない時間帯があります" : "必要人数をすべて満たしています";
+  const locations = featureShortages(pair).map(item => {
+    const interval = lesson.id === "demand" ? range(item.interval) : datedRange(item.interval);
+    return `${pair.input.roles.find(role => role.id === item.role_id).label}が${item.missing_people}人不足（${interval}）`;
+  });
+  const title = shortage ? locations.length === 1 ? locations[0] : "必要人数を満たせない時間帯があります" : "必要人数をすべて満たしています";
   return node("section", "", {class: "feature-overview", "aria-label": "変更と結果の要点"}, [
     node("h3", title, {class: shortage ? "feature-warning" : ""}), node("p", "必須条件は守れています。", {class: "feature-validity"}),
-    initial ? node("p", `初期条件の計算結果 · 不足${shortage}人分`, {class: "feature-initial"}) : summary,
-    ...(shortage ? [node("ul", "", {class: "feature-shortage-locations"}, pair.response.shortage_summary.shortages.map(item =>
-      node("li", `${pair.input.roles.find(role => role.id === item.role_id).label} · ${datedRange(item.interval)} · 不足${item.missing_people}人`)))] : []),
-    ...(shortage ? [node("p", "不足1人が60分続くと60人分です。追加する従業員の人数とは異なります。", {class: "note"})] : []),
+    ...(locations.length > 1 ? [node("ul", "", {class: "feature-shortage-locations"}, locations.map(text => node("li", text)))] : []),
+    initial ? node("p", `初期条件の計算結果 · 不足${shortage}人・分`, {class: "feature-initial"}) : summary,
+    ...(shortage ? [node("p", "不足量は、足りない人数×時間（分）の合計です。1人が60分不足すると60人・分で、追加する従業員数とは異なります。", {class: "note"})] : []),
   ]);
 }
 
@@ -174,19 +192,27 @@ function featurePlanChanges(before, after) {
 
 function renderFeature(message) {
   renderFeatureAction();
-  if (lesson.operation === "verify") return renderVerify(message);
-  const area = $("feature-output"), pair = feature.current, base = feature.baseline;
-  $("feature-status").textContent = message || (pair ? `${pair.response.status} · ${pair.response.status === "PARTIAL" ? "必要人数に不足のある計画です。" : pair.response.status === "OPTIMAL" ? "必須条件と需要を満たす計画です。" : stateText[pair.response.status]}` : "未計算：編集した条件で再計算してください。");
+  const area = $("feature-output"), stale = !feature.current && !!feature.previous;
+  area.toggleAttribute("data-stale", stale);
+  const notice = node("p", "前回の結果です。編集中の変更は未反映です。", {class: "feature-stale-notice"});
+  if (lesson.operation === "verify") {
+    renderVerify(message);
+    if (stale) area.prepend(notice);
+    return;
+  }
+  const pair = feature.current || feature.previous, base = feature.baseline;
+  $("feature-status").textContent = message || (feature.current ? `${pair.response.status} · ${pair.response.status === "PARTIAL" ? "必要人数に不足のある計画です。" : pair.response.status === "OPTIMAL" ? "必須条件と需要を満たす計画です。" : stateText[pair.response.status]}` : "未計算：編集した条件で再計算してください。");
   area.replaceChildren();
+  if (stale) area.append(notice);
   const changes = featureChanges(lesson.editable_fields, feature.initial, feature.input);
-  const inputs = node("details", "", {class: "feature-input-changes"}, [node("summary", changes.length ? `変更した条件 · ${changes.length}項目` : "初期条件からの変更なし"),
+  const inputs = node("details", "", {class: "feature-input-changes"}, [node("summary", changes.length ? `${stale ? "未反映の変更" : "変更した条件"} · ${changes.length}項目` : "初期条件からの変更なし"),
     node("ul", "", {}, changes.map(text => node("li", text)))]);
   inputs.hidden = !changes.length && !!pair;
   if (!pair) {
     inputs.open = true;
     area.append(inputs);
   }
-  if (lesson.id === "shift_count_balance") area.append(countPremises(feature.input));
+  if (lesson.id === "shift_count_balance") area.append(countPremises(pair?.input || feature.input));
   if (pair) {
     if (operationView(lesson.operation, pair.response).validPlan) {
       area.append(featureSummary(pair, base));
@@ -218,10 +244,9 @@ function renderFeature(message) {
     const technical = node("details", "", {}, [node("summary", "この例のJSON・診断・保存した結果"),
       details("全診断", pair.response.diagnostics), details("確定入力・全Response・目的と証明範囲", pair)]);
     if (base) technical.append(details("初期入力と実結果", base));
-    if (feature.previous) technical.append(details("変更前の結果（現在の条件には無効）", feature.previous));
+    if (feature.previous && !stale) technical.append(details("変更前の結果（現在の条件には無効）", feature.previous));
     area.append(technical);
   }
-  if (!pair && feature.previous) area.append(details("変更前の結果（現在の条件には無効）", feature.previous));
 }
 
 function renderFeatureAction() {
@@ -456,13 +481,17 @@ async function startFeatures() {
       return response.json();
     }));
     const area = $("feature-list");
-    area.replaceChildren(node("h2", "できること"), node("p", "担当配置・勤務計画の実装済みの主題を選び、条件を編集して比較できます。"), node("p", "", {role: "status", "aria-live": "polite"}));
-    for (const [group, title] of Object.entries(groups)) area.append(node("h3", title), node("ul", "", {class: "feature-cards"},
-      catalog.topics.filter(item => item.group === group).map(item => {
+    if (publicDemo) document.querySelector('.demo-nav a[href="#feature-list"]').textContent = "公開中のデモ";
+    area.replaceChildren(node("h2", publicDemo ? "公開中のデモ" : "できること"), node("p", "担当配置・勤務計画の実装済みの主題を選び、条件を編集して比較できます。"), node("p", "", {role: "status", "aria-live": "polite"}));
+    for (const [group, title] of Object.entries(groups)) {
+      const topics = catalog.topics.filter(item => item.group === group);
+      if (!topics.length) continue;
+      area.append(node("h3", title), node("ul", "", {class: "feature-cards"}, topics.map(item => {
         const ready = lessons.some(lesson => lesson.id === item.id);
         return node("li", "", {}, [ready ? node("a", item.title, {href: `#${item.id}`}) : node("strong", `${item.title}（準備中）`),
           node("p", ready ? lessons.find(lesson => lesson.id === item.id).steps[1].instruction : `専用操作は準備中です。担当Issue #${item.issue}`)]);
       })));
+    }
     if (!publicDemo) {
     area.append(node("h3", "補助の入口"), node("p", "", {}, [
       node("a", "複数条件を組み合わせる", {href: "#combined"}), document.createTextNode(" · "),

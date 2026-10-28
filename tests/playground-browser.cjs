@@ -139,7 +139,7 @@ async function largeShortageRendering(page) {
   const pages = output.getByRole("combobox", {name: "不足一覧のページ", exact: true});
   assert.equal(await shortages.locator("tbody tr").count(), 100);
   assert.ok((await shortages.locator("caption").innerText()).includes("全150000件中1〜100件"));
-  assert.ok((await output.locator("p").first().innerText()).includes(`不足合計：${expected.total}人分`));
+  assert.ok((await output.locator("p").first().innerText()).includes(`不足合計：${expected.total}人・分`));
   await pages.selectOption("1499");
   assert.equal(await shortages.locator("tbody tr").count(), 100);
   assert.equal(await shortages.locator("tbody th").last().innerText(), "render_149999");
@@ -216,8 +216,8 @@ async function jsonInputChecks(page) {
     await waitJSON(name === "infeasible" ? "INFEASIBLE" : name === "invalid-input" ? "INVALID_INPUT" : partial ? "PARTIAL" : "OPTIMAL");
     assert.deepEqual(await page.evaluate(() => jsonPair.input), JSON.parse(input));
     if (name === "demand_priority") {
-      assert.ok((await page.locator("#json-output").innerText()).includes("priority 10：不足0人分"));
-      assert.ok((await page.locator("#json-output").innerText()).includes("priority 0：不足30人分"));
+      assert.ok((await page.locator("#json-output").innerText()).includes("priority 10：不足0人・分"));
+      assert.ok((await page.locator("#json-output").innerText()).includes("priority 0：不足30人・分"));
     }
     assert.equal(await page.locator("#json-output table").count(), ["infeasible", "invalid-input"].includes(name) ? 0 : partial ? 3 : 2);
   }
@@ -414,7 +414,7 @@ async function jsonInputChecks(page) {
     assert.equal(pair.response.schema_version, schema_version);
     assert.equal(pair.response.status, "PARTIAL");
     assert.equal(pair.response.shortage_summary.total_person_minutes, 60);
-    assert.ok((await page.locator("#json-output").innerText()).includes("priority 0：不足60人分"));
+    assert.ok((await page.locator("#json-output").innerText()).includes("priority 0：不足60人・分"));
     for (const kind of ["shortage", "priority", "proof", "no-plan"]) {
       assert.match(await page.evaluate(kind => {
         const {input, response} = structuredClone(jsonPair);
