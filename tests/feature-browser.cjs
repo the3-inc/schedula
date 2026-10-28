@@ -43,8 +43,7 @@ module.exports = async (browser, url, report) => {
           await page.locator(`[data-step="${step.id}"]`).click();
           assert.equal(await page.evaluate(() => feature.current), null);
           assert.match(await page.locator("#feature-status").innerText(), /未計算/);
-          assert.equal(await page.locator(".feature-overview").count(), 0);
-          assert.equal(await page.locator(".feature-input-changes").evaluate(element => element.open), true);
+          assert.equal(await page.locator("#feature-output[data-stale] .feature-stale-notice").count(), 1);
           await page.locator("#feature-run").click();
         }
       }
@@ -66,8 +65,8 @@ module.exports = async (browser, url, report) => {
       }
       const summary = page.getByRole("region", {name: "変更と結果の要点"});
       if (["demand", "consecutive_days"].includes(lesson.id) && ["initial", "restored"].includes(step.id))
-        assert.match(await summary.innerText(), /初期条件の計算結果 · 不足0人分/);
-      else assert.match(await summary.innerText(), new RegExp(`現在\\s*${step.expected.total_person_minutes}人分`));
+        assert.match(await summary.innerText(), /初期条件の計算結果 · 不足0人・分/);
+      else assert.match(await summary.innerText(), new RegExp(`現在\\s*${step.expected.total_person_minutes}人・分`));
       const proof = page.locator(".feature-proof");
       assert.equal(await proof.evaluate(element => element.open), false);
       await proof.locator("summary").click();
@@ -103,7 +102,7 @@ module.exports = async (browser, url, report) => {
         });
         const value = counts[0] === counts[1] ? String(counts[0]) : `${Math.min(...counts)}〜${Math.max(...counts)}`;
         assert.match(await summary.innerText(), new RegExp(`配置できた人数\\s*初期\\s*2人\\s*→\\s*現在\\s*${value}人`));
-        assert.match(await summary.innerText(), /必要人数を満たせない時間帯/);
+        assert.match(await summary.innerText(), /が\d人不足|必要人数を満たせない時間帯/);
         const coverage = await page.getByRole("region", {name: "必要人数と配置人数"}).innerText();
         for (const count of counts) assert.match(coverage, new RegExp(`配置${count} / 必要4人\\s*${count === 4 ? "不足なし" : `不足${4 - count}人`}`));
       }

@@ -16,9 +16,9 @@ module.exports = async (browser, url, report) => {
         else {
           if (!await page.locator(".feature-more").evaluate(element => element.open)) await page.locator(".feature-more > summary").click();
           await page.locator(`[data-step="${step.id}"]`).click();
-          assert.equal(await page.locator(".feature-overview").count(),0);
+          assert.equal(await page.locator("#feature-output[data-stale] .feature-overview").count(),1);
           assert.match(await page.locator("#feature-status").innerText(),/未計算/);
-          assert.equal(await page.locator(".feature-input-changes").evaluate(x=>x.open),true);
+          assert.equal(await page.locator(".feature-input-changes").evaluate(x=>x.open),false);
           await page.locator("#feature-run").click();
         }
         await ready();
@@ -31,7 +31,7 @@ module.exports = async (browser, url, report) => {
       assert.equal(totals.original,step.expected.original_work_minutes);
       assert.equal(totals.assigned,step.expected.assigned_minutes);
       const summary=page.getByRole("region",{name:"変更と結果の要点"});
-      assert.match(await summary.innerText(),new RegExp(`現在\\s*${step.expected.total_person_minutes}人分`));
+      assert.match(await summary.innerText(),new RegExp(`現在\\s*${step.expected.total_person_minutes}人・分`));
       if (step.id!=="initial"&&step.id!=="restored")assert.match(await summary.innerText(),/変更した条件/);
       if(lesson.id==="skills"&&step.id==="lower")assert.match(await summary.innerText(),/service レベル2.*service レベル1/s);
       if(lesson.id==="skills"&&step.id==="requirement")assert.match(await summary.innerText(),/最低レベル2.*最低レベル1/s);

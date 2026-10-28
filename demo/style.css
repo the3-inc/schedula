@@ -1,4 +1,5 @@
-.demo-main { padding-block: 28px 48px; }
+.demo-page { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+.demo-main { flex: 1; padding-block: 28px 48px; }
 .demo-heading { margin-bottom: 24px; }
 .demo-heading h1 { font-size: clamp(26px, 2.6vw, 34px); margin-bottom: 8px; }
 .demo-heading h1 span { display: inline-block; }
@@ -57,6 +58,8 @@ li { overflow-wrap: anywhere; }
 .feature-validity { color: var(--accent); }
 .feature-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 16px 0; }
 .feature-metric { padding: 8px 12px 8px 0; border-bottom: 1px solid var(--line); }
+.feature-metric.shortage { padding-left: 12px; }
+.feature-metric.shortage > .note { color: inherit; }
 .feature-values { display: flex; justify-content: space-between; align-items: center; gap: 4px; }
 .feature-values small, #feature-output td small, #feature-output td strong { display: block; }
 .feature-values strong { font-size: 22px; white-space: nowrap; }
@@ -89,6 +92,7 @@ li { overflow-wrap: anywhere; }
 .feature-result-panel { min-width: 0; background: var(--paper); border: 1px solid var(--line); border-radius: var(--the3-radius); padding: 24px 28px; }
 #feature-result { min-height: 340px; margin: 0; }
 #feature-status { color: var(--muted); font-size: 13px; font-weight: 400; overflow-wrap: anywhere; }
+.feature-stale-notice { padding: 12px 16px; border-left: 4px solid var(--accent); background: var(--the3-surface); color: var(--ink); }
 .feature-overview { margin: 8px 0 20px; }
 #feature-output .feature-overview h3 { font-size: 23px; line-height: 1.5; }
 .feature-initial { font-size: 14px; }
@@ -105,6 +109,7 @@ li { overflow-wrap: anywhere; }
 .feature-coverage tbody tr:nth-child(3) th { background: var(--the3-surface); }
 .feature-next { display: flex; flex-wrap: wrap; gap: 12px 24px; border-top: 1px solid var(--line); padding-top: 16px; margin-top: 16px; font-size: 14px; }
 .feature-violation { background: #fff1ef; color: #9d3027; }
+.feature-sidebar .feature-violation { padding: 12px; font-size: 14px; }
 #feature-view-result { display: none; }
 @media (max-width: 1000px) {
   #feature-demo .layout { grid-template-columns: 250px minmax(0, 1fr); }

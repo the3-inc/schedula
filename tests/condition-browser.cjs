@@ -37,7 +37,7 @@ module.exports=async(browser,url,report)=>{
         const text=await page.getByRole("region",{name:"変更と結果の要点"}).innerText();
         assert.match(text,/必須条件は守れています/);
         if(!["initial","restored"].includes(step.id))assert.match(text,/変更した条件/);
-        assert.match(text,new RegExp(`現在\\s*${step.expected.total_person_minutes}人分`));
+        assert.match(text,new RegExp(`現在\\s*${step.expected.total_person_minutes}人・分`));
         assert.equal((await page.evaluate(()=>basicTotals(feature.current))).assigned,step.expected.assigned_minutes);
         const region=page.getByRole("region",{name:lesson.id==="rest"?"勤務間の休息":"適用条件と実際の分数",exact:true});
         assert.match(await region.innerText(),/分/);

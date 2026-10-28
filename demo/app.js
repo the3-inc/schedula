@@ -168,10 +168,10 @@ function renderShortages(pair) {
   const zone = pair.input.planning_window.timezone;
   const dateTime = new Intl.DateTimeFormat("ja-JP", {timeZone: zone, month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZoneName: "shortOffset"});
   const result = node("div", "", {}, [
-    node("p", `不足合計：${summary.total_person_minutes}人分 · ${summary.proven_minimal ? "不足最小性：証明済み（追加従業員数を示す値ではありません）" : "不足最小性：未証明。埋められないことが確定したわけではありません。"}`),
+    node("p", `不足合計：${summary.total_person_minutes}人・分 · ${summary.proven_minimal ? "不足最小性：証明済み（追加従業員数を示す値ではありません）" : "不足最小性：未証明。埋められないことが確定したわけではありません。"}`),
   ]);
   if (pair.response.priority_summary) result.append(...pair.response.priority_summary.groups.map(group =>
-    node("p", `priority ${group.priority}：不足${group.total_person_minutes}人分 · 上位段階を固定した最小性：${group.proven_minimal ? "証明済み" : "未証明"}`)));
+    node("p", `priority ${group.priority}：不足${group.total_person_minutes}人・分 · 上位段階を固定した最小性：${group.proven_minimal ? "証明済み" : "未証明"}`)));
   if (!summary.shortages.length) return result;
   const pageSize = 100;
   const select = node("select", "", {"aria-label": "不足一覧のページ"},
@@ -247,7 +247,7 @@ function renderComparison() {
     area.append(node("p", "両方に検証済みの配置があるときだけ担当差分を表示します。"));
     return;
   }
-  area.append(node("p", `不足合計：元の条件${baseline.response.shortage_summary?.total_person_minutes || 0}人分 → 現在${current.response.shortage_summary?.total_person_minutes || 0}人分`));
+  area.append(node("p", `不足合計：元の条件${baseline.response.shortage_summary?.total_person_minutes || 0}人・分 → 現在${current.response.shortage_summary?.total_person_minutes || 0}人・分`));
   const before = assignmentGrid(baseline), after = assignmentGrid(current);
   const differences = [];
   for (const employee of baseline.input.employees) slots.forEach((slot, index) => {
