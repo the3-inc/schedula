@@ -77,6 +77,10 @@ for name in ("base", "tokens"):
         ROOT / "web" / "vendor" / "the3-brand" / f"{name}.css",
         "text/css; charset=utf-8",
     )
+FILES["/brand-preset/assets/the3-symbol.svg"] = (
+    ROOT / "web/vendor/the3-brand/assets/the3-symbol.svg",
+    "image/svg+xml",
+)
 for name in ("global", "landing"):
     FILES[f"/styles/{name}.css"] = (
         ROOT / "web" / "styles" / f"{name}.css",

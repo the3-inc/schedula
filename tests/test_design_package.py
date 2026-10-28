@@ -45,10 +45,8 @@ def test_vendor_matches_the_recorded_package_and_source():
 def test_verified_update_replaces_the_whole_package_and_records_provenance(tmp_path):
     archive, release, checksum = distribution(tmp_path)
     destination = tmp_path / "vendor"
-    destination.mkdir()
-    (destination / "obsolete.css").write_text("old")
+    install(archive, release, checksum, destination)
     metadata = install(archive, release, checksum, destination)
-    assert not (destination / "obsolete.css").exists()
     assert json.loads((destination / "provenance.json").read_text()) == metadata
     assert {
         p.relative_to(destination).as_posix() for p in destination.rglob("*") if p.is_file()
@@ -89,8 +87,8 @@ def test_failed_directory_swap_restores_the_previous_version(tmp_path, monkeypat
 
     archive, release, checksum = distribution(tmp_path)
     destination = tmp_path / "vendor"
-    destination.mkdir()
-    (destination / "old.css").write_text("keep")
+    install(archive, release, checksum, destination)
+    previous = (destination / "tokens.css").read_bytes()
     rename = Path.rename
 
     def fail_new_directory(path, target):
@@ -101,7 +99,29 @@ def test_failed_directory_swap_restores_the_previous_version(tmp_path, monkeypat
     monkeypatch.setattr(Path, "rename", fail_new_directory)
     with pytest.raises(OSError):
         install(archive, release, checksum, destination)
-    assert (destination / "old.css").read_text() == "keep"
+    assert (destination / "tokens.css").read_bytes() == previous
+
+
+@pytest.mark.parametrize("change", ["unmanaged", "modified", "symlink"])
+def test_existing_local_changes_are_preserved(tmp_path, change):
+    archive, release, checksum = distribution(tmp_path)
+    destination = tmp_path / "vendor"
+    install(archive, release, checksum, destination)
+    target = destination / "tokens.css"
+    if change == "unmanaged":
+        target = destination / "custom.css"
+        target.write_text("keep")
+    elif change == "modified":
+        target.write_text("keep")
+    else:
+        target.unlink()
+        target.symlink_to(DESTINATION / "tokens.css")
+    with pytest.raises(ValueError):
+        install(archive, release, checksum, destination)
+    if change == "symlink":
+        assert target.is_symlink()
+    else:
+        assert target.read_text() == "keep"
 
 
 @pytest.mark.parametrize(
@@ -146,4 +166,7 @@ def test_local_and_public_css_use_the_same_fixed_package(tmp_path):
         path, media = served[f"/brand-preset/{name}"]
         assert path.read_bytes() == (DESTINATION / name).read_bytes()
         assert media.startswith("text/css")
+    logo, media = served["/brand-preset/assets/the3-symbol.svg"]
+    assert logo.read_bytes() == (DESTINATION / "assets/the3-symbol.svg").read_bytes()
+    assert media == "image/svg+xml"
     assert not any("provenance" in url or "package.json" in url for url in served)

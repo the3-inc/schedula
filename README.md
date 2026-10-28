@@ -453,12 +453,9 @@ PyPI公開には `pypi` Environment を使用します。Webサービスのprodu
 需要priorityは省略0。不足総量を先に最小化し、同量ならpriority群の降順、指定目的の順に比較します。
 [現行契約](docs/io-contract-current.md#日時担当配置需要)と[1人・2役割の例](examples/demand_priority.json)を参照してください。
 
-## 会社共通のWebプリセット
+## 会社共通のWebデザイン
 
-LP・デモ・技術案内は、landing-pageが公開した共通CSSライブラリ`brand-preset-v0.2.0`を`web/vendor/brand-preset/`へ取り込み、`web/styles/global.css`と合わせて共有しています。
-版とSHA-256は`preset.lock.json`で固定し、公開ビルドで整合を検査します。通常のビルドは配布元への通信を行いません。
-[製品Webのデザイン基準](docs/web-design.md)と、[配布元の導入・更新手順](https://github.com/the3-inc/landing-page/blob/main/docs/brand-preset-distribution.md)を参照してください。
-
-## design-v1への移行
-
-共有CSSは`@the3/brand`を`web/vendor/the3-brand/`へ固定して使います。[共有デザインの利用と更新](docs/design-package.md)を参照してください。素材の配布条件は同梱の`LICENSE`に従い、本体のMIT許諾とは区別します。
+共有CSSはlanding-pageの`@the3/brand`を`web/vendor/the3-brand/`へ固定して使います。
+版・元コミット・SHA-256は`provenance.json`に記録し、公開ビルドで整合を検査します。通常ビルドは配布元へ通信しません。
+[製品Webのデザイン基準](docs/web-design.md)と[共有デザインの利用と更新](docs/design-package.md)を参照してください。
+素材の配布条件は同梱の`LICENSE`に従い、本体のMIT許諾とは区別します。

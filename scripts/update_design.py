@@ -24,6 +24,40 @@ VERSION = r"(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
 MAX_BYTES = 2 * 1024 * 1024
 
 
+def read_vendor(directory=DESTINATION):
+    """管理外ファイル・改変・リンクがない固定版だけを読み込む。"""
+    directory = Path(directory)
+    if directory.is_symlink() or not directory.is_dir():
+        raise ValueError("共有デザインの固定ディレクトリが不正です")
+    entries = list(directory.rglob("*"))
+    if (
+        any(path.is_symlink() for path in entries)
+        or {path.relative_to(directory).as_posix() for path in entries if path.is_file()}
+        != FILES | {"provenance.json"}
+        or {path.relative_to(directory).as_posix() for path in entries if path.is_dir()}
+        != {"assets"}
+    ):
+        raise ValueError("共有デザインの管理対象外ファイルは上書きしません")
+    metadata = json.loads((directory / "provenance.json").read_text(encoding="utf-8"))
+    if (
+        metadata.get("repository") != "the3-inc/landing-page"
+        or metadata.get("tag") != f"design-v{metadata.get('version')}"
+        or metadata.get("source_state") not in {"committed", "working-tree"}
+        or set(metadata.get("files", {})) != FILES
+    ):
+        raise ValueError("共有デザインの固定情報が不正です")
+    contents = {}
+    for name, checksum in metadata["files"].items():
+        data = (directory / name).read_bytes()
+        if hashlib.sha256(data).hexdigest() != checksum:
+            raise ValueError(f"共有デザインが固定情報と一致しません: {name}")
+        contents[name] = data
+    package = json.loads(contents["package.json"])
+    if package.get("name") != "@the3/brand" or package.get("version") != metadata["version"]:
+        raise ValueError("共有デザインのバージョンが一致しません")
+    return metadata, contents
+
+
 def install(archive, release, sha256, destination=DESTINATION, *, allow_working_tree=False):
     archive, release, destination = Path(archive), Path(release), Path(destination)
     if not re.fullmatch(r"[a-f0-9]{64}", sha256):
@@ -74,6 +108,8 @@ def install(archive, release, sha256, destination=DESTINATION, *, allow_working_
     if manifest["name"] != "@the3/brand" or manifest["version"] != version:
         raise ValueError("パッケージ名または版が一致しません")
 
+    if destination.exists() or destination.is_symlink():
+        read_vendor(destination)
     destination.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix=".design-update-", dir=destination.parent) as temp:
         stage = Path(temp) / "new"

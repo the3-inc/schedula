@@ -65,6 +65,10 @@ def test_local_server_serves_the_fixed_css_imports(http_server):
         status, media, content = get(http_server, f"/brand-preset/{name}")
         assert status == 200 and media.startswith("text/css")
         assert content == (DIRECTORY / name).read_text(encoding="utf-8")
+    status, media, content = get(http_server, "/brand-preset/assets/the3-symbol.svg")
+    assert status == 200 and media == "image/svg+xml"
+    assert content == (DIRECTORY / "assets/the3-symbol.svg").read_text(encoding="utf-8")
+    assert get(http_server, "/brand-preset/provenance.json")[0] == 404
 
 
 def test_pinned_bytes_survive_git_crlf_checkout(tmp_path):
