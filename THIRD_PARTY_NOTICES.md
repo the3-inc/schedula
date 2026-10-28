@@ -1,9 +1,22 @@
-# 実行依存のライセンス表示
+# 依存・共有素材のライセンス表示
 
 2026-10-07、uv.lockで固定したmacOS ARM64の実行依存から取得した表示である。
 各依存はschedulaのMIT許諾とは別の条件に従う。OR-Toolsとその依存は通常の実行依存として導入する。
 配布元wheel内のライセンス・著作権表示を原文のまま保存する。依存wheel自体はschedulaのwheelに同梱しない。
 他OSのバイナリに追加の同梱物がある場合は、そのwheelの表示も保持する。
+
+## @the3/brand 1.0.0
+
+共有CSS・会社ロゴの正本は`the3-inc/landing-page`の`packages/brand/`。ソース配布に固定保存し、Python wheelには同梱しない。版・元コミット・検証用配布物かどうかは`demo/vendor/the3-brand/provenance.json`に記録する。
+
+```text
+Copyright the3合同会社。All rights reserved.
+
+本パッケージにオープンソースライセンスは付与していません。
+アクセス権限と利用許可のあるリポジトリでの利用を想定しています。
+第三者への再配布・利用許諾は権利者に確認してください。
+会社ロゴの利用は、会社による承認や提携を誤認させない範囲に限ります。
+```
 
 ## jsonschema 4.26.0
 

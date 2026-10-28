@@ -102,3 +102,7 @@ node tests/landing-browser.cjs
 - 既存の `tests/playground-browser.cjs` も成功。実装済み主題、3シナリオ、100人・30日の勤務計画、JSON読込、入力アダプターの保存・再検証、応答失効を確認した。
 - 変更したPythonのRuff check・format、JavaScript構文確認、`git diff --check` が成功した。
 - 外部公開と実メール送信・受信は未実施。旧デモのブックマーク・旧APIを直接使う呼出元は新パスへ更新が必要。
+
+## 共有デザイン
+
+会社サイト由来の基本CSSを固定保存して読み込みます。[共有デザインの利用と更新](design-package.md)を参照してください。製品用の`landing.css`と`style.css`はこの共有基盤を使います。

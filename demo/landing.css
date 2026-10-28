@@ -1,10 +1,8 @@
-:root { color-scheme: light; --paper: #faf9f5; --ink: #242822; --muted: #62675e; --line: #dcded5; --accent: #435b35; --lime: #d8edab; }
+:root { --paper: var(--the3-background); --ink: var(--the3-text); --muted: var(--the3-muted); --line: var(--the3-border); --accent: #435b35; --lime: #d8edab; }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: 110px; }
-body { margin: 0; background: var(--paper); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Noto Sans JP", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif; line-height: 1.85; -webkit-font-smoothing: antialiased; }
+html { scroll-padding-top: 110px; }
 a { color: inherit; text-underline-offset: 5px; }
 a:hover { text-decoration-thickness: 2px; }
-a:focus-visible { outline: 3px solid #9c5a18; outline-offset: 5px; }
 h1, h2, h3, p, figure { margin: 0; }
 h1, h2, h3 { line-height: 1.45; letter-spacing: -.035em; }
 h2 { font-size: clamp(28px, 3vw, 40px); font-weight: 650; }
@@ -109,7 +107,7 @@ p { color: var(--muted); }
 .developer-layout p.fine-print { font-size: 11px; max-width: 530px; }
 .developer-links { align-self: center; }
 .developer-links a { display: flex; justify-content: space-between; gap: 15px; padding-block: 12px; border-bottom: 1px solid var(--line); text-decoration: none; font-size: 13px; }
-.contact-section { background: #273824; color: #f4f7ed; }
+.contact-section { --the3-focus-color: var(--lime); background: #273824; color: #f4f7ed; }
 .contact-layout { padding-block: 80px; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
 .contact-section .eyebrow { color: var(--lime); }
 .contact-section p { color: #d4ddcc; font-size: 13px; margin-top: 22px; }
@@ -124,8 +122,6 @@ p { color: var(--muted); }
 .site-footer .brand { font-size: 15px; }
 .site-footer p { font-size: 11px; }
 .site-footer nav { display: flex; gap: 22px; font-size: 11px; }
-.skip-link { position: absolute; left: 16px; top: -100px; z-index: 10; background: white; color: var(--ink); padding: 10px 20px; }
-.skip-link:focus { top: 10px; }
 .guide { max-width: 860px; padding-block: 65px 85px; }
 .guide h1 { font-size: clamp(30px, 4vw, 46px); margin-bottom: 20px; }
 .guide h2 { font-size: 25px; margin-bottom: 15px; }
@@ -188,7 +184,6 @@ p { color: var(--muted); }
   .guide { padding-top: 40px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
   .button, .demo-card { transition: none; }
   .demo-card:hover { transform: none; }
 }

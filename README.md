@@ -446,3 +446,7 @@ PyPI公開には `pypi` Environment を使用します。Webサービスのprodu
 
 需要priorityは省略0。不足総量を先に最小化し、同量ならpriority群の降順、指定目的の順に比較します。
 [現行契約](docs/io-contract-current.md#日時担当配置需要)と[1人・2役割の例](examples/demand_priority.json)を参照してください。
+
+## 共有デザイン
+
+デモと技術案内は、landing-pageで管理する`@the3/brand`のCSSを固定保存して使います。[共有デザインの利用と更新](docs/design-package.md)を参照してください。`demo/vendor/the3-brand/`の素材は同梱の配布条件に従い、schedula本体のMITライセンスとは別に扱います。

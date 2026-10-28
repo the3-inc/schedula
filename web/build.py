@@ -23,7 +23,7 @@ def build(destination):
     (product / "docs").mkdir()
 
     html = (ROOT / "demo" / "index.html").read_text(encoding="utf-8")
-    html = html.replace('<html lang="ja">', '<html lang="ja" data-public-demo="true">')
+    html = html.replace('<html lang="ja"', '<html lang="ja" data-public-demo="true"', 1)
     start, end = html.index('  <details id="adapter-demo"'), html.index("</main>")
     html = html[:start] + html[end:]
     html = re.sub(r'  <script src="/demo/adapter.js" defer></script>\n', "", html)
@@ -53,6 +53,15 @@ def build(destination):
         filename = f"{path.stem}.{hashlib.sha256(content.encode()).hexdigest()[:16]}{path.suffix}"
         (product / "assets" / filename).write_text(content, encoding="utf-8")
         original = "/landing.css" if path.name == "landing.css" else f"/demo/{path.name}"
+        html = html.replace(original, BASE + "assets/" + filename)
+        guide = guide.replace(original, BASE + "assets/" + filename)
+    design = ROOT / "demo/vendor/the3-brand"
+    for name in ("tokens.css", "base.css", "assets/the3-symbol.svg"):
+        path = design / name
+        content = path.read_bytes()
+        filename = f"the3-{path.stem}.{hashlib.sha256(content).hexdigest()[:16]}{path.suffix}"
+        (product / "assets" / filename).write_bytes(content)
+        original = f"/demo/vendor/the3-brand/{name}"
         html = html.replace(original, BASE + "assets/" + filename)
         guide = guide.replace(original, BASE + "assets/" + filename)
     html, guide = urls(html), urls(guide)

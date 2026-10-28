@@ -28,9 +28,12 @@ async function main() {
   page.on("pageerror", error => failures.push(error.message));
   page.on("response", response => { if (response.status() >= 400) failures.push(`${response.status()} ${response.url()}`); });
   await page.goto(`${url}/`);
+  await page.emulateMedia({colorScheme: "dark", reducedMotion: "reduce"});
   const landingStyle = await page.evaluate(() => ({background: getComputedStyle(document.body).backgroundColor, font: getComputedStyle(document.body).fontFamily}));
+  assert.equal(landingStyle.background, "rgb(250, 251, 249)");
+  assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior), "auto");
   await page.keyboard.press("Tab");
-  assert.equal(await page.locator(".skip-link").evaluate(element => element === document.activeElement), true);
+  assert.equal(await page.locator(".the3-skip-link").evaluate(element => element === document.activeElement), true);
   await page.keyboard.press("Enter");
   assert.equal(new URL(page.url()).hash, "#main");
   await page.getByRole("link", {name: "自社への導入を相談する"}).click();
@@ -74,7 +77,7 @@ async function main() {
   }
   await page.goto(`${url}/demo/`);
   await page.keyboard.press("Tab");
-  assert.equal(await page.locator(".skip-link").evaluate(element => element === document.activeElement), true);
+  assert.equal(await page.locator(".the3-skip-link").evaluate(element => element === document.activeElement), true);
   await page.keyboard.press("Enter");
   assert.equal(new URL(page.url()).hash, "#main");
   await page.getByRole("link", {name: "shift-schedula ホーム"}).click();

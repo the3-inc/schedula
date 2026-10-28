@@ -26,6 +26,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SAMPLES = ROOT / "examples" / "playground"
 BASELINE = load_json((SAMPLES / "lunch.json").read_text(encoding="utf-8"))
 TIMES = sorted({value for item in BASELINE["demand"] for value in item["interval"].values()})
+DESIGN = ROOT / "demo" / "vendor" / "the3-brand"
 FILES = {
     "/demo/": (ROOT / "demo" / "index.html", "text/html; charset=utf-8"),
     "/demo/app.js": (ROOT / "demo" / "app.js", "text/javascript; charset=utf-8"),
@@ -65,6 +66,16 @@ FILES = {
         "application/json; charset=utf-8",
     ),
 }
+FILES.update(
+    {
+        "/demo/vendor/the3-brand/tokens.css": (DESIGN / "tokens.css", "text/css; charset=utf-8"),
+        "/demo/vendor/the3-brand/base.css": (DESIGN / "base.css", "text/css; charset=utf-8"),
+        "/demo/vendor/the3-brand/assets/the3-symbol.svg": (
+            DESIGN / "assets/the3-symbol.svg",
+            "image/svg+xml",
+        ),
+    }
+)
 FILES.update(
     {
         "/": (ROOT / "demo" / "landing.html", "text/html; charset=utf-8"),

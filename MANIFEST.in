@@ -13,3 +13,5 @@ global-exclude __pycache__ *.py[cod] .DS_Store
 
 recursive-include web *.py Dockerfile
 include infra/README.md
+
+recursive-include demo/vendor/the3-brand *
