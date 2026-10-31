@@ -20,10 +20,7 @@ uv は **0.13.6** を使用する。直接インストールした uv は `uv se
 [uv 0.13.6](https://github.com/astral-sh/uv/releases/tag/0.13.6) は、
 証明書ストア修正済みの uv と、pip 26.2.2 を含む Python ビルドを利用する。
 旧版に固定された仮想環境は自動では移行しないため、更新後に `uv sync --locked` を実行する。
-公開デモの Lambda イメージも `web/Dockerfile` の digest を更新した。
-ただし AWS の最新イメージは Python 3.14.9 のため、コンテナー全体を 3.14.10 と同等とは扱わない。
-証明書対応として pip を 26.2.2、uv を 0.13.6 へ明示的に更新する。
-AWS が 3.14.10 を提供したら digest を再更新する。
+公開デモの Lambda イメージは Python 3.14.10 を含む AWS ベースイメージの digest に固定し、uv 0.13.6 をインストールする。
 Git hook 用の間接依存 virtualenv も 21.14.13 に更新し、古い pip の再導入を防ぐ。
 更新前からある hook 環境では `uv run --locked pre-commit clean` を実行してから hook を再実行する。
 
