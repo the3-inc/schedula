@@ -67,7 +67,7 @@ uv run --locked python -m shift_schedula adapter verify-record "$archive/explici
 
 2026-11-01、main `72d0c5a21a5a804132b0e2e49c518ebf48276774` の製品コード、
 Python 3.14.10・uv 0.13.6・既存uv.lockで現行手順の調査・再現を観測した。
-[baseline](../evaluations/results/m1-record-workflow/baseline/summary.json)には時刻・操作・版・
+[baseline](https://github.com/the3-inc/schedula/blob/b7b91cf8dc32518006c37dca8a47d2c5e7b62c87/docs/evaluations/results/m1-record-workflow/baseline/summary.json)には時刻・操作・版・
 入力hash・原記録hashがある。明示値1の正常往復は成功、省略は2で#170の合否は不合格だった。
 この結果は実API/CP-SATを動かした証拠であり、実在の従業員データの受入ではない。
 手順自体の確認結果は同じディレクトリの`probe/`へ保存する。
